@@ -58,6 +58,7 @@ import java.util.regex.Matcher;
 
 import tw.nekomimi.nekogram.helpers.SettingsHelper;
 import tw.nekomimi.nekogram.helpers.UserHelper;
+import tw.nekomimi.nekogram.settings.NekoLanguagesSelectActivity;
 
 public class LinkManager {
 
@@ -352,7 +353,7 @@ public class LinkManager {
         }
         if ("language".equalsIgnoreCase(first)) { // open_settings = 10;
             if ("do-not-translate".equalsIgnoreCase(second)) {
-                presentFragment(new RestrictedLanguagesSelectActivity());
+                presentFragment(new NekoLanguagesSelectActivity(NekoLanguagesSelectActivity.TYPE_RESTRICTED));
                 return true;
             }
             presentFragment(new LanguageSelectActivity());

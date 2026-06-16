@@ -186,9 +186,6 @@ public class RecyclerListView extends RecyclerView implements IBlur3Capture {
     private IntReturnCallback pendingHighlightPosition;
     private Runnable removeHighlighSelectionRunnable;
 
-    private static int[] attributes;
-    private static boolean gotAttributes;
-
     private boolean hiddenByEmptyView;
     public boolean fastScrollAnimationRunning;
     private boolean animateEmptyView;
@@ -1452,18 +1449,6 @@ public class RecyclerListView extends RecyclerView implements IBlur3Capture {
         }
     };
 
-    public int[] getResourceDeclareStyleableIntArray(String packageName, String name) {
-        try {
-            Field f = Class.forName(packageName + ".R$styleable").getField(name);
-            if (f != null) {
-                return (int[]) f.get(null);
-            }
-        } catch (Throwable t) {
-            //ignore
-        }
-        return null;
-    }
-
     public RecyclerListView(Context context) {
         this(context, null);
     }
@@ -1478,22 +1463,6 @@ public class RecyclerListView extends RecyclerView implements IBlur3Capture {
         setGlowColor(getThemedColor(Theme.key_actionBarDefault));
         selectorDrawable = Theme.getSelectorDrawable(getThemedColor(Theme.key_listSelector), false);
         selectorDrawable.setCallback(this);
-
-        try {
-            if (!gotAttributes) {
-                attributes = getResourceDeclareStyleableIntArray("com.android.internal", "View");
-                if (attributes == null) {
-                    attributes = new int[0];
-                }
-                gotAttributes = true;
-            }
-            TypedArray a = context.getTheme().obtainStyledAttributes(attributes);
-            if (initializeScrollbars != null) {
-                initializeScrollbars.invoke(this, a);
-            }
-        } catch (Throwable e) {
-            FileLog.e(e);
-        }
         super.setOnScrollListener(new OnScrollListener() {
 
             @Override
@@ -1638,9 +1607,7 @@ public class RecyclerListView extends RecyclerView implements IBlur3Capture {
 
     @Override
     public void setVerticalScrollBarEnabled(boolean verticalScrollBarEnabled) {
-        if (attributes != null) {
-            super.setVerticalScrollBarEnabled(verticalScrollBarEnabled);
-        }
+        super.setVerticalScrollBarEnabled(verticalScrollBarEnabled);
     }
 
     @Override

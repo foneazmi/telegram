@@ -19,6 +19,8 @@ import android.media.MediaCodecList;
 import android.os.Build;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.webkit.WebView;
@@ -39,6 +41,8 @@ import org.telegram.ui.LaunchActivity;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.net.URLEncoder;
@@ -49,6 +53,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
 
 public class SharedConfig {
     /**
@@ -422,6 +431,67 @@ public class SharedConfig {
                 }
             } catch (UnsupportedEncodingException ignored) {}
             return url.toString();
+        }
+    }
+
+    private static final String PROXY_KEY_ALIAS = "NekoProxyKey";
+    private static final String ENC_PREFIX = "enc:";
+
+    private static SecretKey getProxySecretKey() throws Exception {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            throw new KeyStoreException("KeyStore requires API 23+");
+        }
+        KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+        keyStore.load(null);
+        if (!keyStore.containsAlias(PROXY_KEY_ALIAS)) {
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+            KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(
+                    PROXY_KEY_ALIAS,
+                    KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT
+            )
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    .setUserAuthenticationRequired(false)
+                    .build();
+            keyGenerator.init(spec);
+            keyGenerator.generateKey();
+        }
+        return (SecretKey) keyStore.getKey(PROXY_KEY_ALIAS, null);
+    }
+
+    private static String encryptProxyField(String plaintext) {
+        if (TextUtils.isEmpty(plaintext)) return plaintext;
+        try {
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            cipher.init(Cipher.ENCRYPT_MODE, getProxySecretKey());
+            byte[] iv = cipher.getIV();
+            byte[] encrypted = cipher.doFinal(plaintext.getBytes("UTF-8"));
+            byte[] combined = new byte[iv.length + encrypted.length];
+            System.arraycopy(iv, 0, combined, 0, iv.length);
+            System.arraycopy(encrypted, 0, combined, iv.length, encrypted.length);
+            return ENC_PREFIX + Base64.encodeToString(combined, Base64.NO_WRAP);
+        } catch (Exception e) {
+            FileLog.e("Failed to encrypt proxy field", e);
+            return plaintext;
+        }
+    }
+
+    private static String decryptProxyField(String ciphertext) {
+        if (TextUtils.isEmpty(ciphertext) || !ciphertext.startsWith(ENC_PREFIX)) {
+            return ciphertext; // Legacy plaintext data
+        }
+        try {
+            byte[] combined = Base64.decode(ciphertext.substring(ENC_PREFIX.length()), Base64.DEFAULT);
+            byte[] iv = new byte[12];
+            byte[] encrypted = new byte[combined.length - 12];
+            System.arraycopy(combined, 0, iv, 0, 12);
+            System.arraycopy(combined, 12, encrypted, 0, encrypted.length);
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            cipher.init(Cipher.DECRYPT_MODE, getProxySecretKey(), new GCMParameterSpec(128, iv));
+            return new String(cipher.doFinal(encrypted), "UTF-8");
+        } catch (Exception e) {
+            FileLog.e("Failed to decrypt proxy field", e);
+            return ciphertext; // Fall back to plaintext on error
         }
     }
 
@@ -1434,8 +1504,8 @@ public class SharedConfig {
         SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
         String proxyAddress = preferences.getString("proxy_ip", "");
         String proxyUsername = preferences.getString("proxy_user", "");
-        String proxyPassword = preferences.getString("proxy_pass", "");
-        String proxySecret = preferences.getString("proxy_secret", "");
+        String proxyPassword = decryptProxyField(preferences.getString("proxy_pass", ""));
+        String proxySecret = decryptProxyField(preferences.getString("proxy_secret", ""));
         int proxyPort = preferences.getInt("proxy_port", 1080);
 
         proxyListLoaded = true;
@@ -1457,8 +1527,8 @@ public class SharedConfig {
                                 data.readString(false),
                                 data.readInt32(false),
                                 data.readString(false),
-                                data.readString(false),
-                                data.readString(false));
+                                decryptProxyField(data.readString(false)),
+                                decryptProxyField(data.readString(false)));
 
                         info.ping = data.readInt64(false);
                         info.availableCheckTime = data.readInt64(false);
@@ -1479,8 +1549,8 @@ public class SharedConfig {
                             data.readString(false),
                             data.readInt32(false),
                             data.readString(false),
-                            data.readString(false),
-                            data.readString(false));
+                            decryptProxyField(data.readString(false)),
+                            decryptProxyField(data.readString(false)));
                     proxyList.add(0, info);
                     if (currentProxy == null && !TextUtils.isEmpty(proxyAddress)) {
                         if (proxyAddress.equals(info.address) && proxyPort == info.port && proxyUsername.equals(info.username) && proxyPassword.equals(info.password)) {
@@ -1520,8 +1590,8 @@ public class SharedConfig {
             serializedData.writeString(info.address != null ? info.address : "");
             serializedData.writeInt32(info.port);
             serializedData.writeString(info.username != null ? info.username : "");
-            serializedData.writeString(info.password != null ? info.password : "");
-            serializedData.writeString(info.secret != null ? info.secret : "");
+            serializedData.writeString(info.password != null ? encryptProxyField(info.password) : "");
+            serializedData.writeString(info.secret != null ? encryptProxyField(info.secret) : "");
 
             serializedData.writeInt64(info.ping);
             serializedData.writeInt64(info.availableCheckTime);

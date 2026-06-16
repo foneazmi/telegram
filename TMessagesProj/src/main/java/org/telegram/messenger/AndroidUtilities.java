@@ -143,7 +143,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
-import com.android.internal.telephony.ITelephony;
 import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
@@ -968,7 +967,6 @@ public class AndroidUtilities {
         } catch (Exception e) {
 
         }
-        ApplicationLoader.appCenterLog(new RuntimeException("can't create logs directory"));
         return null;
     }
 
@@ -3088,23 +3086,7 @@ public class AndroidUtilities {
     private static Runnable unregisterRunnable;
     private static boolean hasCallPermissions = Build.VERSION.SDK_INT >= 23;
 
-    @SuppressWarnings("unchecked")
     public static void endIncomingCall() {
-        if (!hasCallPermissions) {
-            return;
-        }
-        try {
-            TelephonyManager tm = (TelephonyManager) ApplicationLoader.applicationContext.getSystemService(Context.TELEPHONY_SERVICE);
-            Class c = Class.forName(tm.getClass().getName());
-            Method m = c.getDeclaredMethod("getITelephony");
-            m.setAccessible(true);
-            ITelephony telephonyService = (ITelephony) m.invoke(tm);
-            telephonyService = (ITelephony) m.invoke(tm);
-            telephonyService.silenceRinger();
-            telephonyService.endCall();
-        } catch (Throwable e) {
-            FileLog.e(e);
-        }
     }
 
     public static String obtainLoginPhoneCall(String pattern) {
@@ -3634,9 +3616,6 @@ public class AndroidUtilities {
         }
     }*/
 
-    public static void appCenterLog(Throwable e) {
-        ApplicationLoader.appCenterLog(e);
-    }
 
     public static boolean shouldShowClipboardToast() {
         return (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || !OneUIUtilities.hasBuiltInClipboardToasts()) && (Build.VERSION.SDK_INT < 32 || XiaomiUtilities.isMIUI());

@@ -1995,9 +1995,9 @@ public class FileLoadOperation {
                                 if (!Arrays.equals(sha256, hash.hash)) {
                                     if (BuildVars.LOGS_ENABLED) {
                                         if (location != null) {
-                                            FileLog.e("invalid cdn hash " + location + " id = " + location.id + " local_id = " + location.local_id + " access_hash = " + location.access_hash + " volume_id = " + location.volume_id + " secret = " + location.secret);
+                                            // FileLog.e("invalid cdn hash " + location + " id = " + location.id + " local_id = " + location.local_id + " access_hash = " + location.access_hash + " volume_id = " + location.volume_id + " secret = " + location.secret);
                                         } else if (webLocation != null) {
-                                            FileLog.e("invalid cdn hash  " + webLocation + " id = " + fileName);
+                                            // FileLog.e("invalid cdn hash  " + webLocation + " id = " + fileName);
                                         }
                                     }
                                     onFail(false, 0);
@@ -2101,12 +2101,12 @@ public class FileLoadOperation {
                 if (BuildVars.LOGS_ENABLED) {
                     if (location != null) {
                         if (location instanceof TLRPC.TL_inputPeerPhotoFileLocation) {
-                            FileLog.e(error.text + " " + location + " peer_did = " + DialogObject.getPeerDialogId(((TLRPC.TL_inputPeerPhotoFileLocation) location).peer) + " peer_access_hash=" + ((TLRPC.TL_inputPeerPhotoFileLocation) location).peer.access_hash + " photo_id=" + ((TLRPC.TL_inputPeerPhotoFileLocation) location).photo_id + " big=" + ((TLRPC.TL_inputPeerPhotoFileLocation) location).big);
+                            // FileLog.e(error.text + " " + location + " peer_did = " + DialogObject.getPeerDialogId(((TLRPC.TL_inputPeerPhotoFileLocation) location).peer) + " peer_access_hash=" + ((TLRPC.TL_inputPeerPhotoFileLocation) location).peer.access_hash + " photo_id=" + ((TLRPC.TL_inputPeerPhotoFileLocation) location).photo_id + " big=" + ((TLRPC.TL_inputPeerPhotoFileLocation) location).big);
                         } else {
-                            FileLog.e(error.text + " " + location + " id = " + location.id + " local_id = " + location.local_id + " access_hash = " + location.access_hash + " volume_id = " + location.volume_id + " secret = " + location.secret);
+                            // FileLog.e(error.text + " " + location + " id = " + location.id + " local_id = " + location.local_id + " access_hash = " + location.access_hash + " volume_id = " + location.volume_id + " secret = " + location.secret);
                         }
                     } else if (webLocation != null) {
-                        FileLog.e(error.text + " " + webLocation + " id = " + fileName);
+                        // FileLog.e(error.text + " " + webLocation + " id = " + fileName);
                     }
                 }
                 onFail(false, 0);

@@ -58,7 +58,6 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import org.lsposed.hiddenapibypass.HiddenApiBypass;
 import com.google.common.primitives.Chars;
 
 import org.telegram.messenger.AndroidUtilities;
@@ -183,13 +182,8 @@ public class EditTextBoldCursor extends EditTextEffects {
 
     static {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                canUndoMethod = HiddenApiBypass.getDeclaredMethod(TextView.class, "canUndo");
-                canRedoMethod = HiddenApiBypass.getDeclaredMethod(TextView.class, "canRedo");
-            } else {
-                canUndoMethod = TextView.class.getDeclaredMethod("canUndo");
-                canRedoMethod = TextView.class.getDeclaredMethod("canRedo");
-            }
+            canUndoMethod = TextView.class.getDeclaredMethod("canUndo");
+            canRedoMethod = TextView.class.getDeclaredMethod("canRedo");
             canUndoMethod.setAccessible(true);
             canRedoMethod.setAccessible(true);
         } catch (Throwable t) {

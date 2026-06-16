@@ -19,18 +19,6 @@ public class PasscodeHelper {
     private static final SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("nekopasscode", Context.MODE_PRIVATE);
 
     public static boolean checkPasscode(Activity activity, String passcode) {
-        if (hasPasscodeForAccount(Integer.MAX_VALUE)) {
-            String passcodeHash = preferences.getString("passcodeHash" + Integer.MAX_VALUE, "");
-            String passcodeSaltString = preferences.getString("passcodeSalt" + Integer.MAX_VALUE, "");
-            if (checkPasscodeHash(passcode, passcodeHash, passcodeSaltString)) {
-                for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
-                    if (UserConfig.getInstance(a).isClientActivated() && isAccountAllowPanic(a)) {
-                        MessagesController.getInstance(a).performLogout(1);
-                    }
-                }
-                return false;
-            }
-        }
         for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
             if (UserConfig.getInstance(a).isClientActivated() && hasPasscodeForAccount(a)) {
                 String passcodeHash = preferences.getString("passcodeHash" + a, "");
@@ -75,18 +63,8 @@ public class PasscodeHelper {
                 .apply();
     }
 
-    public static boolean isAccountAllowPanic(int account) {
-        return preferences.getBoolean("allowPanic" + account, true);
-    }
-
     public static boolean isAccountHidden(int account) {
-        return hasPasscodeForAccount(account) && preferences.getBoolean("hide" + account, false);
-    }
-
-    public static void setAccountAllowPanic(int account, boolean panic) {
-        preferences.edit()
-                .putBoolean("allowPanic" + account, panic)
-                .apply();
+        return preferences.getBoolean("hide" + account, false);
     }
 
     public static void setHideAccount(int account, boolean hide) {
@@ -115,10 +93,6 @@ public class PasscodeHelper {
 
     public static boolean hasPasscodeForAccount(int account) {
         return preferences.contains("passcodeHash" + account) && preferences.contains("passcodeSalt" + account);
-    }
-
-    public static boolean hasPanicCode() {
-        return hasPasscodeForAccount(Integer.MAX_VALUE);
     }
 
     public static String getSettingsKey() {

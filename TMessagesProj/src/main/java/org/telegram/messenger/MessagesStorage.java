@@ -861,12 +861,7 @@ public class MessagesStorage extends BaseController {
     }
 
     boolean tryRecover;
-
     public void checkSQLException(Throwable e) {
-        checkSQLException(e, true);
-    }
-
-    private void checkSQLException(Throwable e, boolean logToAppCenter) {
         if (e instanceof SQLiteException && e.getMessage() != null && e.getMessage().contains("is malformed") && !tryRecover) {
             tryRecover = true;
             FileLog.e("disk image malformed detected, try recover");
@@ -878,10 +873,10 @@ public class MessagesStorage extends BaseController {
                 });
                 FileLog.e(new Exception("database restored!!"));
             } else {
-                FileLog.e(new Exception(e), logToAppCenter);
+                FileLog.e(new Exception(e));
             }
         } else {
-            FileLog.e(e, logToAppCenter);
+            FileLog.e(e);
         }
     }
 
@@ -14848,7 +14843,7 @@ public class MessagesStorage extends BaseController {
                                     database.executeFast(String.format(Locale.US, "UPDATE media_holes_v2 SET end = %d WHERE uid = %d AND type = %d AND start = %d AND end = %d", minId, did, hole.type, hole.start, hole.end)).stepThis().dispose();
                                 }
                             } catch (Exception e) {
-                                checkSQLException(e, false);
+                                checkSQLException(e);
                             }
                         }
                     } else if (minId <= hole.start + 1) {
@@ -14860,7 +14855,7 @@ public class MessagesStorage extends BaseController {
                                     database.executeFast(String.format(Locale.US, "UPDATE media_holes_v2 SET start = %d WHERE uid = %d AND type = %d AND start = %d AND end = %d", maxId, did, hole.type, hole.start, hole.end)).stepThis().dispose();
                                 }
                             } catch (Exception e) {
-                                checkSQLException(e, false);
+                                checkSQLException(e);
                             }
                         }
                     } else {
@@ -14948,7 +14943,7 @@ public class MessagesStorage extends BaseController {
                                     database.executeFast(String.format(Locale.US, "REPLACE INTO " + table + " VALUES(%d, %d, %d)", did, hole.start, minId)).stepThis().dispose();
                                 }
                             } catch (Exception e) {
-                                checkSQLException(e, false);
+                                checkSQLException(e);
                             }
                         }
                     } else if (minId <= hole.start + 1) {
@@ -14962,7 +14957,7 @@ public class MessagesStorage extends BaseController {
                                     database.executeFast(String.format(Locale.US, "REPLACE INTO " + table + " VALUES(%d, %d, %d)", did, maxId, hole.end)).stepThis().dispose();
                                 }
                             } catch (Exception e) {
-                                checkSQLException(e, false);
+                                checkSQLException(e);
                             }
                         }
                     } else {

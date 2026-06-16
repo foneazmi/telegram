@@ -717,7 +717,7 @@ public class TranscribeButton {
                                 }
                                 NotificationCenter.getInstance(account).postNotificationName(NotificationCenter.voiceTranscriptionUpdate, messageObject);
                                 NotificationCenter.getInstance(account).postNotificationName(NotificationCenter.updateTranscriptionLock);
-                                WhisperHelper.showErrorDialog(exception);
+                                FileLog.e(exception);
                             });
                         }
                     });

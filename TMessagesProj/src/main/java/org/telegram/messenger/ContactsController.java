@@ -1290,7 +1290,7 @@ public class ContactsController extends BaseController {
             if (request) {
                 if (!toImport.isEmpty()) {
                     if (BuildVars.LOGS_ENABLED) {
-                        FileLog.e("start import contacts");
+                        // FileLog.e("start import contacts");
                         /*for (TLRPC.TL_inputPhoneContact contact : toImport) {
                             FileLog.e("add contact " + contact.first_name + " " + contact.last_name + " " + contact.phone);
                         }*/

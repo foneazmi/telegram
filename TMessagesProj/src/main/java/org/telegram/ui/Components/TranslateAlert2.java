@@ -12,7 +12,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -21,7 +20,6 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -42,7 +40,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.common.base.Charsets;
 //import com.google.mlkit.common.model.RemoteModelManager;
 //import com.google.mlkit.nl.translate.TranslateLanguage;
 //import com.google.mlkit.nl.translate.TranslateRemoteModel;
@@ -50,11 +47,8 @@ import com.google.common.base.Charsets;
 //import com.google.mlkit.nl.translate.Translator;
 //import com.google.mlkit.nl.translate.TranslatorOptions;
 
-import org.json.JSONArray;
-import org.json.JSONTokener;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.Emoji;
-import org.telegram.messenger.LanguageDetector;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MessageObject;
 import org.telegram.messenger.MessagesController;
@@ -73,12 +67,6 @@ import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.BottomSheet;
 import org.telegram.ui.ActionBar.Theme;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.HttpURLConnection;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -315,203 +303,6 @@ public class TranslateAlert2 extends BottomSheet implements NotificationCenter.N
         });
     }
 
-    public static final String[] userAgents = new String[] {
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0) Gecko/20100101 Firefox/95.0",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36"
-    };
-    private void translateAlt() {
-        final String text = reqText == null ? "" : reqText.toString();
-        String _fromLng = fromLanguage;
-        if (_fromLng != null) {
-            _fromLng = _fromLng.split("_")[0];
-        }
-        if ("nb".equals(_fromLng)) {
-            _fromLng = "no";
-        }
-        final String fromLng = _fromLng;
-        String _toLng = toLanguage;
-        if (_toLng != null) {
-            _toLng = _toLng.split("_")[0];
-        }
-        if ("nb".equals(_toLng)) {
-            _toLng = "no";
-        }
-        final String toLng = _toLng;
-
-        alternativeTranslate(text, fromLng, toLng, (res, rateLimit) -> {
-            if (res != null) {
-                firstTranslation = false;
-                textView.setText(preprocessText(res));
-                adapter.updateMainView(textViewContainer);
-            } else {
-                if (isDismissed()) return;
-//                if ("system".equals(MessagesController.getInstance(currentAccount).translationsManualEnabled)) {
-//                    translateSystem();
-//                    return;
-//                }
-                if (firstTranslation) {
-                    dismiss();
-                    NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.showBulletin, Bulletin.TYPE_ERROR, LocaleController.getString(rateLimit ? R.string.TranslationFailedAlert1 : R.string.TranslationFailedAlert2));
-                } else {
-                    BulletinFactory.of((FrameLayout) containerView, resourcesProvider).createErrorBulletin(LocaleController.getString(rateLimit ? R.string.TranslationFailedAlert1 : R.string.TranslationFailedAlert2)).show();
-                    headerView.toLanguageTextView.setText(languageName(toLanguage = prevToLanguage));
-                    adapter.updateMainView(textViewContainer);
-                }
-            }
-        });
-    }
-
-    private static int lastIndexOfSafe(String text, String target, int start, int end) {
-        int idx = text.lastIndexOf(target, end - 1);
-        return (idx >= start) ? idx : -1;
-    }
-
-    public static ArrayList<String> cut(String encodedText, int maxLength) {
-        ArrayList<String> result = new ArrayList<>();
-        int start = 0;
-        while (start < encodedText.length()) {
-            int end = Math.min(start + maxLength, encodedText.length());
-            int splitPos = -1;
-
-            splitPos = lastIndexOfSafe(encodedText, "%0A", start, end);
-            if (splitPos == -1) {
-                splitPos = lastIndexOfSafe(encodedText, "%20", start, end);
-            }
-            if (splitPos == -1) {
-                splitPos = end;
-            } else {
-                splitPos += 3;
-            }
-
-            result.add(encodedText.substring(start, splitPos));
-            start = splitPos;
-        }
-        return result;
-    }
-
-    public static void alternativeTranslate(String text, String fromLng, String toLng, Utilities.Callback2<String, Boolean> done) {
-        if (done == null) return;
-        if (fromLng == null) {
-            LanguageDetector.detectLanguage(text, lng -> {
-                alternativeTranslate(text, lng, toLng, done);
-            }, e -> {
-                alternativeTranslate(text, "en", toLng, done);
-            });
-            return;
-        }
-        final String etext = Uri.encode(text);
-        if (etext.length() > 5000) {
-            ArrayList<String> parts = cut(etext, 5000);
-            ArrayList<String> results = new ArrayList<>();
-            for (int i = 0; i < parts.size(); ++i) {
-                results.add(null);
-            }
-
-            final boolean[] fullyDone = new boolean[1];
-            for (int i = 0; i < parts.size(); ++i) {
-                final int index = i;
-                alternativeTranslateInternal(parts.get(i), fromLng, toLng, (res, rateLimit) -> {
-                    if (fullyDone[0]) return;
-                    if (res != null) {
-                        results.set(index, res);
-                        boolean allDone = true;
-                        for (int j = 0; j < results.size(); ++j) {
-                            if (results.get(j) == null) {
-                                allDone = false;
-                                break;
-                            }
-                        }
-                        if (allDone) {
-                            fullyDone[0] = true;
-                            done.run(TextUtils.join("", results), false);
-                        }
-                    } else {
-                        fullyDone[0] = true;
-                        done.run(null, rateLimit);
-                    }
-                });
-            }
-        } else {
-            alternativeTranslateInternal(etext, fromLng, toLng, done);
-        }
-    }
-    private static void alternativeTranslateInternal(String text, String fromLng, String toLng, Utilities.Callback2<String, Boolean> done) {
-        if (done == null) return;
-        new Thread() {
-            @Override
-            public void run() {
-                String uri;
-                HttpURLConnection connection = null;
-                try {
-                    uri = "https://translate.goo";
-                    uri += "gleapis.com/transl";
-                    uri += "ate_a";
-                    uri += "/singl";
-                    uri += "e?client=gtx&sl=" + Uri.encode(fromLng) + "&tl=" + Uri.encode(toLng) + "&dt=t" + "&ie=UTF-8&oe=UTF-8&otf=1&ssel=0&tsel=0&kc=7&dt=at&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&q=";
-                    uri += text;
-                    connection = (HttpURLConnection) new URI(uri).toURL().openConnection();
-                    connection.setRequestMethod("GET");
-                    connection.setRequestProperty("User-Agent", userAgents[(int) Math.round(Math.random() * (userAgents.length - 1))]);
-                    connection.setRequestProperty("Content-Type", "application/json");
-
-                    StringBuilder textBuilder = new StringBuilder();
-                    try (Reader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), Charsets.UTF_8))) {
-                        int c = 0;
-                        while ((c = reader.read()) != -1) {
-                            textBuilder.append((char) c);
-                        }
-                    }
-                    String jsonString = textBuilder.toString();
-
-                    JSONTokener tokener = new JSONTokener(jsonString);
-                    JSONArray array = new JSONArray(tokener);
-                    JSONArray array1 = array.getJSONArray(0);
-                    String sourceLanguage = null;
-                    try {
-                        sourceLanguage = array.getString(2);
-                    } catch (Exception e2) {}
-                    if (sourceLanguage != null && sourceLanguage.contains("-")) {
-                        sourceLanguage = sourceLanguage.substring(0, sourceLanguage.indexOf("-"));
-                    }
-                    String result = "";
-                    for (int i = 0; i < array1.length(); ++i) {
-                        String blockText = array1.getJSONArray(i).getString(0);
-                        if (blockText != null && !blockText.equals("null"))
-                            result += /*(i > 0 ? "\n" : "") +*/ blockText;
-                    }
-                    if (text.length() > 0 && text.charAt(0) == '\n')
-                        result = "\n" + result;
-                    final String finalResult = result;
-                    AndroidUtilities.runOnUIThread(() -> {
-                        if (done != null)
-                            done.run(finalResult, false);
-                    });
-                } catch (Exception e) {
-                    try {
-                        Log.e("translate", "failed to translate a text " + (connection != null ? connection.getResponseCode() : null) + " " + (connection != null ? connection.getResponseMessage() : null));
-                    } catch (IOException ioException) {
-                        ioException.printStackTrace();
-                    }
-                    e.printStackTrace();
-
-                    try {
-                        final boolean rateLimit = connection != null && connection.getResponseCode() == 429;
-                        AndroidUtilities.runOnUIThread(() -> {
-                            done.run(null, rateLimit);
-                        });
-                    } catch (Exception e2) {
-                        AndroidUtilities.runOnUIThread(() -> {
-                            done.run(null, false);
-                        });
-                    }
-                }
-            }
-        }.start();
-    }
 
 //    private ArrayList<Runnable> cancelTrackingDownloads = new ArrayList<>();
 //    private ArrayList<String> downloadingModels;

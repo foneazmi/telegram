@@ -19,15 +19,12 @@ import java.util.Locale;
 import tw.nekomimi.nekogram.NekoConfig;
 import tw.nekomimi.nekogram.helpers.PopupHelper;
 import tw.nekomimi.nekogram.translator.Translator;
-import tw.nekomimi.nekogram.translator.TranslatorApps;
 
 public class NekoGeneralSettingsActivity extends BaseNekoSettingsActivity {
 
     private final int ipv6Row = rowId++;
 
     private final int showOriginalRow = rowId++;
-    private final int translatorTypeRow = rowId++;
-    private final int translatorExternalAppRow = rowId++;
     private final int translationProviderRow = rowId++;
     private final int translationTargetRow = rowId++;
     private final int doNotTranslateRow = rowId++;
@@ -90,20 +87,6 @@ public class NekoGeneralSettingsActivity extends BaseNekoSettingsActivity {
         return value;
     }
 
-    private CharSequence getTranslatorType() {
-        return switch (NekoConfig.transType) {
-            case NekoConfig.TRANS_TYPE_TG -> LocaleController.getString(R.string.TranslatorTypeTG);
-            case NekoConfig.TRANS_TYPE_EXTERNAL ->
-                    LocaleController.getString(R.string.TranslatorTypeExternal);
-            default -> LocaleController.getString(R.string.TranslatorTypeNeko);
-        };
-    }
-
-    private CharSequence getTranslatorExternalApp() {
-        var app = TranslatorApps.getTranslatorApp();
-        return app == null ? "" : app.title;
-    }
-
     @Override
     protected void fillItems(ArrayList<UItem> items, UniversalAdapter adapter) {
         items.add(UItem.asHeader(LocaleController.getString(R.string.Connection)));
@@ -111,18 +94,11 @@ public class NekoGeneralSettingsActivity extends BaseNekoSettingsActivity {
         items.add(UItem.asShadow(null));
 
         items.add(UItem.asHeader(LocaleController.getString(R.string.Translator)));
-        items.add(TextSettingsCellFactory.of(translatorTypeRow, LocaleController.getString(R.string.TranslatorType), getTranslatorType()).slug("translatorType"));
-        if (NekoConfig.transType != NekoConfig.TRANS_TYPE_EXTERNAL) {
-            if (NekoConfig.transType == NekoConfig.TRANS_TYPE_NEKO) {
-                items.add(UItem.asCheck(showOriginalRow, LocaleController.getString(R.string.TranslatorShowOriginal)).slug("showOriginalRow").setChecked(NekoConfig.showOriginal));
-            }
-            items.add(TextSettingsCellFactory.of(translationProviderRow, LocaleController.getString(R.string.TranslationProviderShort), getTranslationProvider()).slug("translationProvider"));
-            items.add(TextSettingsCellFactory.of(translationTargetRow, LocaleController.getString(R.string.TranslationTarget), getTranslationTarget()).slug("translationTarget"));
-            items.add(TextSettingsCellFactory.of(doNotTranslateRow, LocaleController.getString(R.string.DoNotTranslate), getRestrictedLanguages()).slug("doNotTranslate"));
-            items.add(UItem.asCheck(autoTranslateRow, LocaleController.getString(R.string.AutoTranslate), LocaleController.getString(R.string.AutoTranslateAbout)).slug("autoTranslate").setChecked(NekoConfig.autoTranslate));
-        } else {
-            items.add(TextSettingsCellFactory.of(translatorExternalAppRow, LocaleController.getString(R.string.TranslationProviderShort), getTranslatorExternalApp()).slug("translatorExternalApp"));
-        }
+        items.add(UItem.asCheck(showOriginalRow, LocaleController.getString(R.string.TranslatorShowOriginal)).slug("showOriginalRow").setChecked(NekoConfig.showOriginal));
+        items.add(TextSettingsCellFactory.of(translationProviderRow, LocaleController.getString(R.string.TranslationProviderShort), getTranslationProvider()).slug("translationProvider"));
+        items.add(TextSettingsCellFactory.of(translationTargetRow, LocaleController.getString(R.string.TranslationTarget), getTranslationTarget()).slug("translationTarget"));
+        items.add(TextSettingsCellFactory.of(doNotTranslateRow, LocaleController.getString(R.string.DoNotTranslate), getRestrictedLanguages()).slug("doNotTranslate"));
+        items.add(UItem.asCheck(autoTranslateRow, LocaleController.getString(R.string.AutoTranslate), LocaleController.getString(R.string.AutoTranslateAbout)).slug("autoTranslate").setChecked(NekoConfig.autoTranslate));
         items.add(UItem.asShadow(LocaleController.getString(R.string.TranslateMessagesInfo1)));
 
         items.add(UItem.asHeader(LocaleController.getString(R.string.Notifications)));
@@ -233,34 +209,6 @@ public class NekoGeneralSettingsActivity extends BaseNekoSettingsActivity {
             if (view instanceof TextCheckCell) {
                 ((TextCheckCell) view).setChecked(NekoConfig.silenceNonContacts);
             }
-        } else if (id == translatorTypeRow) {
-            int oldType = NekoConfig.transType;
-            Translator.showTranslatorTypeSelector(getParentActivity(), view, () -> {
-                int newType = NekoConfig.transType;
-                item.textValue = getTranslatorType();
-                listView.adapter.notifyItemChanged(position, PARTIAL);
-                if (oldType != newType) {
-                    int count = 4;
-                    if (oldType == NekoConfig.TRANS_TYPE_NEKO || newType == NekoConfig.TRANS_TYPE_NEKO) {
-                        count++;
-                    }
-                    if (oldType == NekoConfig.TRANS_TYPE_EXTERNAL) {
-                        notifyItemRemoved(translatorExternalAppRow);
-                        updateRows();
-                        notifyItemRangeInserted(translationProviderRow, count);
-                    } else if (newType == NekoConfig.TRANS_TYPE_EXTERNAL) {
-                        notifyItemRangeRemoved(translationProviderRow, count);
-                        updateRows();
-                        notifyItemInserted(translatorExternalAppRow);
-                    } else if (oldType == NekoConfig.TRANS_TYPE_NEKO) {
-                        notifyItemRemoved(showOriginalRow);
-                        updateRows();
-                    } else if (newType == NekoConfig.TRANS_TYPE_NEKO) {
-                        updateRows();
-                        notifyItemInserted(showOriginalRow);
-                    }
-                }
-            }, resourcesProvider);
         } else if (id == doNotTranslateRow) {
             presentFragment(new NekoLanguagesSelectActivity(NekoLanguagesSelectActivity.TYPE_RESTRICTED));
         } else if (id == autoTranslateRow) {
@@ -273,11 +221,6 @@ public class NekoGeneralSettingsActivity extends BaseNekoSettingsActivity {
             if (view instanceof TextCheckCell) {
                 ((TextCheckCell) view).setChecked(NekoConfig.showOriginal);
             }
-        } else if (id == translatorExternalAppRow) {
-            Translator.showTranslationProviderSelector(getParentActivity(), view, param -> {
-                item.textValue = getTranslatorExternalApp();
-                listView.adapter.notifyItemChanged(position, PARTIAL);
-            }, resourcesProvider);
         }
     }
 

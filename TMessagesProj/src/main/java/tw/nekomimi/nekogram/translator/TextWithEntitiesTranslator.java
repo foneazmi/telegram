@@ -6,16 +6,6 @@ import org.telegram.ui.Components.TranslateAlert2;
 import java.util.HashMap;
 import java.util.List;
 
-import app.nekogram.translator.BaiduTranslator;
-import app.nekogram.translator.BaseTranslator;
-import app.nekogram.translator.DeepLTranslator;
-import app.nekogram.translator.GoogleAppTranslator;
-import app.nekogram.translator.LingoTranslator;
-import app.nekogram.translator.MicrosoftTranslator;
-import app.nekogram.translator.SogouTranslator;
-import app.nekogram.translator.TranSmartTranslator;
-import app.nekogram.translator.YandexTranslator;
-import app.nekogram.translator.YouDaoTranslator;
 import tw.nekomimi.nekogram.NekoConfig;
 import tw.nekomimi.nekogram.translator.html.HTMLKeeper;
 
@@ -24,28 +14,14 @@ public class TextWithEntitiesTranslator implements Translator.ITranslator {
     private static final HashMap<String, TextWithEntitiesTranslator> wrappedTranslators = new HashMap<>();
 
     public static TextWithEntitiesTranslator of(String type) {
-        return wrappedTranslators.computeIfAbsent(type, type1 -> {
-            var translator = switch (type1) {
-                case Translator.PROVIDER_YANDEX -> YandexTranslator.getInstance();
-                case Translator.PROVIDER_LINGO -> LingoTranslator.getInstance();
-                case Translator.PROVIDER_DEEPL -> {
-                    DeepLTranslator.setFormality(NekoConfig.deepLFormality);
-                    yield DeepLTranslator.getInstance();
-                }
-                case Translator.PROVIDER_MICROSOFT -> MicrosoftTranslator.getInstance();
-                case Translator.PROVIDER_YOUDAO -> YouDaoTranslator.getInstance();
-                case Translator.PROVIDER_BAIDU -> BaiduTranslator.getInstance();
-                case Translator.PROVIDER_SOGOU -> SogouTranslator.getInstance();
-                case Translator.PROVIDER_TENCENT -> TranSmartTranslator.getInstance();
-                default -> GoogleAppTranslator.getInstance();
-            };
-            return new TextWithEntitiesTranslator(translator);
-        });
+        return wrappedTranslators.computeIfAbsent(type, type1 ->
+            new TextWithEntitiesTranslator(TelegramTranslator.getInstance())
+        );
     }
 
-    private final BaseTranslator translator;
+    private final Translator.ITranslator translator;
 
-    private TextWithEntitiesTranslator(BaseTranslator translator) {
+    private TextWithEntitiesTranslator(Translator.ITranslator translator) {
         this.translator = translator;
     }
 
@@ -53,15 +29,19 @@ public class TextWithEntitiesTranslator implements Translator.ITranslator {
     public Translator.TranslationResult translate(TLRPC.TL_textWithEntities query, String fl, String tl) throws Exception {
         if (NekoConfig.keepFormatting) {
             var html = HTMLKeeper.entitiesToHtml(query.text, query.entities, false);
-            var result = translator.translate(html, null, tl);
-            var textAndEntitiesTranslated = HTMLKeeper.htmlToEntities(result.translation, query.entities, false);
+            var htmlQuery = new TLRPC.TL_textWithEntities();
+            htmlQuery.text = html;
+            var result = translator.translate(htmlQuery, fl, tl);
+            var textAndEntitiesTranslated = HTMLKeeper.htmlToEntities(result.translation().text, query.entities, false);
             return Translator.TranslationResult.of(
                     TranslateAlert2.preprocess(query, textAndEntitiesTranslated),
-                    result.sourceLanguage
+                    result.sourceLanguage()
             );
         } else {
-            var result = translator.translate(query.text, null, tl);
-            return Translator.TranslationResult.of(Translator.textWithEntities(result.translation, null), result.sourceLanguage);
+            var textQuery = new TLRPC.TL_textWithEntities();
+            textQuery.text = query.text;
+            var result = translator.translate(textQuery, fl, tl);
+            return Translator.TranslationResult.of(Translator.textWithEntities(result.translation().text, null), result.sourceLanguage());
         }
     }
 

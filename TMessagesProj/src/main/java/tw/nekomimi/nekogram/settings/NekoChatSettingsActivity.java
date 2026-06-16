@@ -37,6 +37,7 @@ import org.telegram.ui.Components.UniversalRecyclerView;
 
 import java.util.ArrayList;
 
+import org.telegram.ui.Components.AlertsCreator;
 import tw.nekomimi.nekogram.NekoConfig;
 import tw.nekomimi.nekogram.helpers.EntitiesHelper;
 import tw.nekomimi.nekogram.helpers.PopupHelper;
@@ -487,7 +488,7 @@ public class NekoChatSettingsActivity extends BaseNekoSettingsActivity implement
                 listView.adapter.notifyItemChanged(position, PARTIAL);
             }, resourcesProvider);
         } else if (id == cfCredentialsRow) {
-            WhisperHelper.showCfCredentialsDialog(this);
+            AlertsCreator.showSimpleAlert(this, LocaleController.getString(R.string.CloudflareCredentialsNotSet));
         } else if (id == preferOriginalQualityRow) {
             NekoConfig.togglePreferOriginalQuality();
             if (view instanceof TextCheckCell) {

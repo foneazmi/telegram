@@ -210,19 +210,8 @@ public final class RuntimeClassNameTypeAdapterFactory<T> implements TypeAdapterF
                     String label = labelJsonElement.getAsString();
                     TypeAdapter<R> delegate = (TypeAdapter<R>) labelToDelegate.get(label);
                     if (delegate == null) {
-                        Class<R> aClass;
-                        try {
-                            aClass = (Class<R>) Class.forName(label);
-                        } catch (ClassNotFoundException e) {
-                            throw new JsonParseException("Cannot find class " + label, e);
-                        }
-
-                        TypeToken<R> subClass = TypeToken.get(aClass);
-                        delegate = gson.getDelegateAdapter(RuntimeClassNameTypeAdapterFactory.this, subClass);
-                        if (delegate == null) {
-                            throw new JsonParseException("cannot deserialize " + baseType + " subtype named "
-                                    + label + "; did you forget to register a subtype?");
-                        }
+                        throw new JsonParseException("cannot deserialize " + baseType + " subtype named "
+                                + label + "; did you forget to register a subtype?");
                     }
                     return delegate.fromJsonTree(jsonElement);
                 } else if (jsonElement.isJsonNull()) {

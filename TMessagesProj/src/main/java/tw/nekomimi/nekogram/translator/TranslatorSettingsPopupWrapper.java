@@ -25,7 +25,6 @@ public class TranslatorSettingsPopupWrapper {
         }
 
         var items = new String[]{
-                LocaleController.getString(R.string.TranslatorType),
                 LocaleController.getString(R.string.TranslationTarget),
                 LocaleController.getString(R.string.TranslationProvider),
         };
@@ -35,12 +34,9 @@ public class TranslatorSettingsPopupWrapper {
             item.setOnClickListener(view -> {
                 switch ((Integer) view.getTag()) {
                     case 0:
-                        Translator.showTranslatorTypeSelector(context, null, null, resourcesProvider);
-                        break;
-                    case 1:
                         Translator.showTranslationTargetSelector(fragment, null, null, resourcesProvider);
                         break;
-                    case 2:
+                    case 1:
                         Translator.showTranslationProviderSelector(context, null, null, resourcesProvider);
                         break;
                 }

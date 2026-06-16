@@ -24,7 +24,7 @@ import tw.nekomimi.nekogram.settings.NekoGeneralSettingsActivity;
 import tw.nekomimi.nekogram.settings.NekoPasscodeSettingsActivity;
 
 public class SettingsHelper {
-
+    
     public static void processDeepLink(Uri uri, Consumer<BaseFragment> callback, Runnable unknown, Browser.Progress progress) {
         if (uri == null) {
             unknown.run();
@@ -65,9 +65,6 @@ public class SettingsHelper {
                 case "g":
                     fragment = new NekoGeneralSettingsActivity();
                     break;
-                case "reportid":
-                    SettingsHelper.copyReportId();
-                    return;
                 case "update":
                     LaunchActivity.instance.checkAppUpdate(true, progress);
                     return;
@@ -87,8 +84,4 @@ public class SettingsHelper {
         }
     }
 
-    public static void copyReportId() {
-        AndroidUtilities.addToClipboard(AnalyticsHelper.userId);
-        BulletinFactory.global().createSimpleBulletin(R.raw.copy, LocaleController.getString(R.string.TextCopied), LocaleController.getString(R.string.CopyReportIdDescription)).show();
-    }
 }

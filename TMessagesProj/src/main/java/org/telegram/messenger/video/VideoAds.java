@@ -176,34 +176,8 @@ public class VideoAds {
     private boolean loading, loaded;
     private void load() {
         if (loading || loaded) return;
-
-        if (UserConfig.getInstance(currentAccount).isPremium() && MessagesController.getInstance(currentAccount).isSponsoredDisabled()) {
-            return;
-        }
-
         loading = true;
-
-        TLRPC.TL_messages_getSponsoredMessages req = new TLRPC.TL_messages_getSponsoredMessages();
-        req.peer = MessagesController.getInstance(currentAccount).getInputPeer(dialogId);
-        req.flags |= 1;
-        req.msg_id = msg_id;
-        requestId = ConnectionsManager.getInstance(currentAccount).sendRequest(req, (res, err) -> AndroidUtilities.runOnUIThread(() -> {
-            if (!loading) return;
-
-            if (res instanceof TLRPC.TL_messages_sponsoredMessages) {
-                final TLRPC.TL_messages_sponsoredMessages r = (TLRPC.TL_messages_sponsoredMessages) res;
-                MessagesController.getInstance(currentAccount).putUsers(r.users, false);
-                MessagesController.getInstance(currentAccount).putChats(r.chats, false);
-                ads.addAll(r.messages);
-                start_delay = r.start_delay;
-                between_delay = r.between_delay;
-            }
-
-            loaded = true;
-            loading = false;
-
-            schedule();
-        }));
+        loaded = true;
     }
 
     private void schedule() {
@@ -546,33 +520,7 @@ public class VideoAds {
     }
 
     public void stop() {
-        if (bulletin != null) {
-            currentBulletinPassedTime = System.currentTimeMillis() - bulletinShowTime;
-            if (!ads.isEmpty()) {
-                final TLRPC.TL_sponsoredMessage ad = ads.get(0);
-                if (currentBulletinPassedTime > ad.min_display_duration * 1000L) {
-                    currentBulletinPassedTime = 0;
-                    ads.remove(0);
-                    first = false;
-                }
-            }
-            bulletin.hide();
-            bulletin = null;
-        } else {
-            currentBulletinPassedTime = 0;
-        }
-        if (currentMenu != null) {
-            currentMenu.dismiss();
-            currentMenu = null;
-        }
-        bulletin = null;
-        if (loading) {
-            ConnectionsManager.getInstance(currentAccount).cancelRequest(requestId, true);
-            requestId = 0;
-            loading = false;
-        }
         AndroidUtilities.cancelRunOnUIThread(showRunnable);
-        setWaitingPaused(true);
     }
 
     public static class AdOptionsDrawable extends Drawable {

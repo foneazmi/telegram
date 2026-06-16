@@ -14,18 +14,13 @@ import org.telegram.messenger.FileLog;
 import org.telegram.ui.ActionBar.Theme;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-import app.nekogram.translator.DeepLTranslator;
-import tw.nekomimi.nekogram.helpers.AnalyticsHelper;
-import tw.nekomimi.nekogram.helpers.CloudSettingsHelper;
 import tw.nekomimi.nekogram.helpers.LensHelper;
 import tw.nekomimi.nekogram.translator.Translator;
-import tw.nekomimi.nekogram.translator.TranslatorApps;
 
 public class NekoConfig {
     //TODO: refactor
@@ -37,10 +32,6 @@ public class NekoConfig {
     public static final int ID_TYPE_HIDDEN = 0;
     public static final int ID_TYPE_API = 1;
     public static final int ID_TYPE_BOTAPI = 2;
-
-    public static final int TRANS_TYPE_NEKO = 0;
-    public static final int TRANS_TYPE_TG = 1;
-    public static final int TRANS_TYPE_EXTERNAL = 2;
 
     public static final int DOUBLE_TAP_ACTION_NONE = 0;
     public static final int DOUBLE_TAP_ACTION_REACTION = 1;
@@ -82,16 +73,14 @@ public class NekoConfig {
     public static float stickerSize = 14.0f;
     public static String translationProvider = Translator.PROVIDER_GOOGLE;
     public static String translationTarget = "app";
-    public static int deepLFormality = DeepLTranslator.FORMALITY_DEFAULT;
+    public static int deepLFormality = 0;
     public static int tabsTitleType = TITLE_TYPE_MIX;
     public static int idType = ID_TYPE_API;
     public static int maxRecentStickers = 20;
-    public static int transType = TRANS_TYPE_NEKO;
     public static int doubleTapInAction = DOUBLE_TAP_ACTION_REACTION;
     public static int doubleTapOutAction = DOUBLE_TAP_ACTION_REACTION;
     public static int downloadSpeedBoost = BOOST_NONE;
     public static Set<String> restrictedLanguages;
-    public static String externalTranslationProvider;
     public static int transcribeProvider = TRANSCRIBE_PREMIUM;
     public static String cfAccountID = "";
     public static String cfApiToken = "";
@@ -148,16 +137,9 @@ public class NekoConfig {
     public static boolean bottomFilterTabs = false;
     public static boolean strokeOnViews = true;
 
-    public static boolean shouldNOTTrustMe = false;
-
     public static int userMcc = 0;
 
     private static final SharedPreferences.OnSharedPreferenceChangeListener listener = (preferences, key) -> {
-        var map = new HashMap<String, String>(1);
-        map.put("key", key);
-        AnalyticsHelper.trackEvent("neko_config_changed", map);
-
-        CloudSettingsHelper.getInstance().doAutoSync();
     };
     private static boolean configLoaded;
 
@@ -194,7 +176,6 @@ public class NekoConfig {
             tabsTitleType = preferences.getInt("tabsTitleType2", TITLE_TYPE_MIX);
             confirmAVMessage = preferences.getBoolean("confirmAVMessage", false);
             askBeforeCall = preferences.getBoolean("askBeforeCall", true);
-            shouldNOTTrustMe = preferences.getBoolean("shouldNOTTrustMe", false);
             disableNumberRounding = preferences.getBoolean("disableNumberRounding", false);
             disableAppBarShadow = preferences.getBoolean("disableAppBarShadow", false);
             mediaPreview = preferences.getBoolean("mediaPreview", true);
@@ -216,7 +197,6 @@ public class NekoConfig {
             autoTranslate = preferences.getBoolean("autoTranslate", true);
             disableVoiceMessageAutoPlay = preferences.getBoolean("disableVoiceMessageAutoPlay", false);
             unmuteVideosWithVolumeButtons = preferences.getBoolean("unmuteVideosWithVolumeButtons", true);
-            transType = preferences.getInt("transType", TRANS_TYPE_NEKO);
             showCopyPhoto = preferences.getBoolean("showCopyPhoto", false);
             doubleTapInAction = preferences.getInt("doubleTapAction", DOUBLE_TAP_ACTION_REACTION);
             doubleTapOutAction = preferences.getInt("doubleTapOutAction", doubleTapInAction);
@@ -234,8 +214,6 @@ public class NekoConfig {
             quickForward = preferences.getBoolean("quickForward", false);
             reducedColors = preferences.getBoolean("reducedColors", false);
             ignoreContentRestriction = preferences.getBoolean("ignoreContentRestriction", false);
-            externalTranslationProvider = preferences.getString("externalTranslationProvider", "");
-            TranslatorApps.loadTranslatorAppsAsync();
             showTimeHint = preferences.getBoolean("showTimeHint", false);
             transcribeProvider = preferences.getInt("transcribeProvider", TRANSCRIBE_PREMIUM);
             cfAccountID = preferences.getString("cfAccountID", "");
@@ -255,12 +233,6 @@ public class NekoConfig {
             LensHelper.checkLensSupportAsync();
             preferences.registerOnSharedPreferenceChangeListener(listener);
 
-            if (!configLoaded) {
-                var map = new HashMap<String, String>();
-                map.put("buildType", BuildConfig.BUILD_TYPE);
-                map.put("mcc", String.valueOf(userMcc));
-                AnalyticsHelper.trackEvent("load_config", map);
-            }
             configLoaded = true;
         }
     }
@@ -353,14 +325,6 @@ public class NekoConfig {
         editor.apply();
     }
 
-    public static void setExternalTranslationProvider(String provider) {
-        externalTranslationProvider = provider;
-        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("nekoconfig", Activity.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString("externalTranslationProvider", externalTranslationProvider);
-        editor.apply();
-    }
-
     public static void setNewMarkdownParser(boolean newParser) {
         newMarkdownParser = newParser;
         SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("nekoconfig", Activity.MODE_PRIVATE);
@@ -390,14 +354,6 @@ public class NekoConfig {
         SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("nekoconfig", Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("doubleTapOutAction", doubleTapOutAction);
-        editor.apply();
-    }
-
-    public static void setTransType(int type) {
-        transType = type;
-        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("nekoconfig", Activity.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt("transType", transType);
         editor.apply();
     }
 

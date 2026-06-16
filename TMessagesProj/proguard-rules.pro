@@ -164,7 +164,7 @@
     public boolean isLayoutSuppressed();
 }
 
--repackageclasses
+-repackageclasses 'org.telegram.messenger'
 -allowaccessmodification
 -keepattributes SourceFile,LineNumberTable
 -renamesourcefileattribute SourceFile

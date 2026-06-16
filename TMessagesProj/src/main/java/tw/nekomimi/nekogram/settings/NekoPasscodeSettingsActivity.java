@@ -45,9 +45,6 @@ public class NekoPasscodeSettingsActivity extends BaseNekoSettingsActivity {
 
     private final int accountsStartRow = 100;
 
-    private final int setPanicCodeRow = rowId++;
-    private final int removePanicCodeRow = rowId++;
-
     private final int clearPasscodesRow = rowId++;
 
     private final ArrayList<Integer> accounts = new ArrayList<>();
@@ -86,12 +83,7 @@ public class NekoPasscodeSettingsActivity extends BaseNekoSettingsActivity {
         }
         items.add(UItem.asShadow(LocaleController.getString(R.string.PasscodeAbout)).setEnabled(passcodeSet));
 
-        items.add(UItem.asHeader(LocaleController.getString(R.string.PasscodePanicCode)).setEnabled(passcodeSet));
-        items.add(TextSettingsCellFactory.of(setPanicCodeRow, PasscodeHelper.hasPanicCode() ? LocaleController.getString(R.string.PasscodePanicCodeEdit) : LocaleController.getString(R.string.PasscodePanicCodeSet)).setEnabled(passcodeSet));
-        if (PasscodeHelper.hasPanicCode()) {
-            items.add(TextSettingsCellFactory.of(removePanicCodeRow, LocaleController.getString(R.string.PasscodePanicCodeRemove)).red().setEnabled(passcodeSet));
-        }
-        items.add(UItem.asShadow(LocaleController.getString(R.string.PasscodePanicCodeAbout)).setEnabled(passcodeSet));
+
 
         if (BuildConfig.DEBUG) {
             items.add(TextSettingsCellFactory.of(clearPasscodesRow, "Clear passcodes").red());
@@ -125,16 +117,6 @@ public class NekoPasscodeSettingsActivity extends BaseNekoSettingsActivity {
                 hideAccount.setBackground(Theme.getSelectorDrawable(false));
                 linearLayout.addView(hideAccount, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
             }
-
-            TextCheckCell allowPanic = new TextCheckCell(getParentActivity(), 23, true, resourcesProvider);
-            allowPanic.setTextAndCheck(LocaleController.getString(R.string.PasscodeAllowPanic), PasscodeHelper.isAccountAllowPanic(account), false);
-            allowPanic.setOnClickListener(view13 -> {
-                boolean hide = !allowPanic.isChecked();
-                PasscodeHelper.setAccountAllowPanic(account, hide);
-                allowPanic.setChecked(hide);
-            });
-            allowPanic.setBackground(Theme.getSelectorDrawable(false));
-            linearLayout.addView(allowPanic, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
 
             AlertDialog.AlertDialogCell editPasscode = new AlertDialog.AlertDialogCell(getParentActivity(), resourcesProvider);
             editPasscode.setTextAndIcon(PasscodeHelper.hasPasscodeForAccount(account) ? LocaleController.getString(R.string.PasscodeEdit) : LocaleController.getString(R.string.PasscodeSet), 0);
@@ -173,22 +155,6 @@ public class NekoPasscodeSettingsActivity extends BaseNekoSettingsActivity {
         } else if (id == clearPasscodesRow) {
             PasscodeHelper.clearAll();
             finishFragment();
-        } else if (id == setPanicCodeRow) {
-            presentFragment(new PasscodeActivity(PasscodeActivity.TYPE_SETUP_CODE, Integer.MAX_VALUE));
-        } else if (id == removePanicCodeRow) {
-            AlertDialog alertDialog = new AlertDialog.Builder(getParentActivity(), resourcesProvider)
-                    .setTitle(LocaleController.getString(R.string.PasscodePanicCodeRemove))
-                    .setMessage(LocaleController.getString(R.string.PasscodePanicCodeRemoveConfirmMessage))
-                    .setNegativeButton(LocaleController.getString(R.string.Cancel), null)
-                    .setPositiveButton(LocaleController.getString(R.string.DisablePasscodeTurnOff), (dialog, which) -> {
-                        PasscodeHelper.removePasscodeForAccount(Integer.MAX_VALUE);
-                        listView.findItemByItemId(setPanicCodeRow).text = LocaleController.getString(R.string.PasscodePanicCodeSet);
-                        notifyItemChanged(setPanicCodeRow);
-                        notifyItemRemoved(removePanicCodeRow);
-                        updateRows();
-                    }).create();
-            showDialog(alertDialog);
-            ((TextView) alertDialog.getButton(Dialog.BUTTON_POSITIVE)).setTextColor(getThemedColor(Theme.key_text_RedBold));
         } else if (id == showInSettingsRow) {
             PasscodeHelper.setHideSettings(!PasscodeHelper.isSettingsHidden());
             if (view instanceof TextCheckCell) {

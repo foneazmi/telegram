@@ -39,7 +39,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import app.nekogram.translator.Http429Exception;
 import tw.nekomimi.nekogram.NekoConfig;
 import tw.nekomimi.nekogram.helpers.PopupHelper;
 import tw.nekomimi.nekogram.settings.NekoLanguagesSelectActivity;
@@ -47,15 +46,6 @@ import tw.nekomimi.nekogram.settings.NekoLanguagesSelectActivity;
 public class Translator {
 
     public static final String PROVIDER_GOOGLE = "google";
-    public static final String PROVIDER_YANDEX = "yandex";
-    public static final String PROVIDER_MICROSOFT = "microsoft";
-    public static final String PROVIDER_DEEPL = "deepl";
-    public static final String PROVIDER_TELEGRAM = "telegram";
-    public static final String PROVIDER_LINGO = "lingo";
-    public static final String PROVIDER_YOUDAO = "youdao";
-    public static final String PROVIDER_BAIDU = "baidu";
-    public static final String PROVIDER_SOGOU = "sogou";
-    public static final String PROVIDER_TENCENT = "tencent";
 
     public static final String TRANSLATION_SEPARATOR = "\n--------\n";
 
@@ -71,11 +61,7 @@ public class Translator {
     }
 
     public static void showTranslateDialog(Context context, String query, ArrayList<TLRPC.MessageEntity> entities, boolean noforwards, BaseFragment fragment, Utilities.CallbackReturn<URLSpan, Boolean> onLinkPress, String sourceLanguage, View anchorView, Theme.ResourcesProvider resourcesProvider) {
-        if (NekoConfig.transType == NekoConfig.TRANS_TYPE_EXTERNAL) {
-            TranslatorApps.showExternalTranslateDialog(context, query, sourceLanguage, anchorView, resourcesProvider);
-        } else {
-            TranslateAlert2.showAlert(context, fragment, UserConfig.selectedAccount, sourceLanguage, NekoConfig.translationTarget, query, entities, noforwards, onLinkPress, null, resourcesProvider);
-        }
+        TranslateAlert2.showAlert(context, fragment, UserConfig.selectedAccount, sourceLanguage, NekoConfig.translationTarget, query, entities, noforwards, onLinkPress, null, resourcesProvider);
     }
 
     public static void handleTranslationError(Context context, final Throwable t, final Runnable onRetry, Theme.ResourcesProvider resourcesProvider) {
@@ -87,10 +73,7 @@ public class Translator {
             builder.setMessage(LocaleController.getString(R.string.TranslateApiUnsupported));
             builder.setPositiveButton(LocaleController.getString(R.string.TranslationProviderShort), (dialog, which) -> showTranslationProviderSelector(context, null, null, resourcesProvider));
         } else {
-            if (t instanceof Http429Exception) {
-                builder.setTitle(LocaleController.getString(R.string.TranslateFailed));
-                builder.setMessage(LocaleController.getString(R.string.FloodWait));
-            } else if (t != null && t.getLocalizedMessage() != null) {
+            if (t != null && t.getLocalizedMessage() != null) {
                 builder.setTitle(LocaleController.getString(R.string.TranslateFailed));
                 builder.setMessage(t.getLocalizedMessage());
             } else {
@@ -150,24 +133,6 @@ public class Translator {
         ArrayList<String> types = new ArrayList<>();
         names.add(LocaleController.getString(R.string.ProviderGoogleTranslate));
         types.add(PROVIDER_GOOGLE);
-        names.add(LocaleController.getString(R.string.ProviderYandex));
-        types.add(PROVIDER_YANDEX);
-        names.add(LocaleController.getString(R.string.ProviderMicrosoftTranslator));
-        types.add(PROVIDER_MICROSOFT);
-        names.add(LocaleController.getString(R.string.ProviderDeepLTranslate));
-        types.add(PROVIDER_DEEPL);
-        names.add("Telegram");
-        types.add(PROVIDER_TELEGRAM);
-        names.add(LocaleController.getString(R.string.ProviderLingocloud));
-        types.add(PROVIDER_LINGO);
-        names.add(LocaleController.getString(R.string.ProviderYouDaoTranslate));
-        types.add(PROVIDER_YOUDAO);
-        names.add(LocaleController.getString(R.string.ProviderBaiduTranslate));
-        types.add(PROVIDER_BAIDU);
-        names.add(LocaleController.getString(R.string.ProviderSogouTranslate));
-        types.add(PROVIDER_SOGOU);
-        names.add(LocaleController.getString(R.string.ProviderTencentTranslator));
-        types.add(PROVIDER_TENCENT);
         return new Pair<>(names, types);
     }
 
@@ -195,35 +160,7 @@ public class Translator {
         }
     }
 
-    public static void showTranslatorTypeSelector(Context context, View view, Runnable callback, Theme.ResourcesProvider resourcesProvider) {
-        ArrayList<String> arrayList = new ArrayList<>();
-        ArrayList<Integer> types = new ArrayList<>();
-        arrayList.add(LocaleController.getString(R.string.TranslatorTypeNeko));
-        types.add(NekoConfig.TRANS_TYPE_NEKO);
-        arrayList.add(LocaleController.getString(R.string.TranslatorTypeTG));
-        types.add(NekoConfig.TRANS_TYPE_TG);
-        arrayList.add(LocaleController.getString(R.string.TranslatorTypeExternal));
-        types.add(NekoConfig.TRANS_TYPE_EXTERNAL);
-        PopupHelper.show(arrayList, LocaleController.getString(R.string.TranslatorType), types.indexOf(NekoConfig.transType), context, view, i -> {
-            NekoConfig.setTransType(types.get(i));
-            if (callback != null) callback.run();
-        }, resourcesProvider);
-    }
-
     public static void showTranslationProviderSelector(Context context, View view, MessagesStorage.BooleanCallback callback, Theme.ResourcesProvider resourcesProvider) {
-        if (NekoConfig.transType == NekoConfig.TRANS_TYPE_EXTERNAL) {
-            var app = TranslatorApps.getTranslatorApp();
-            var apps = TranslatorApps.getTranslatorApps();
-            if (apps.isEmpty()) {
-                return;
-            }
-            var list = apps.stream().map(a -> a.title).collect(Collectors.toList());
-            PopupHelper.show(list, LocaleController.getString(R.string.TranslationProvider), apps.indexOf(app), context, view, i -> {
-                TranslatorApps.setTranslatorApp(apps.get(i));
-                if (callback != null) callback.run(true);
-            }, resourcesProvider);
-            return;
-        }
         Pair<ArrayList<String>, ArrayList<String>> providers = getProviders();
         ArrayList<String> names = providers.first;
         ArrayList<String> types = providers.second;
@@ -270,9 +207,6 @@ public class Translator {
     }
 
     private static ITranslator getTranslator(String type) {
-        if (PROVIDER_TELEGRAM.equals(type)) {
-            return TelegramTranslator.getInstance();
-        }
         return TextWithEntitiesTranslator.of(type);
     }
 

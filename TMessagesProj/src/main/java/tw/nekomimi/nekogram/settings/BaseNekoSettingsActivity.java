@@ -14,6 +14,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -183,9 +184,7 @@ public abstract class BaseNekoSettingsActivity extends BaseFragment {
         iBlur3Capture = new ViewGroupPartRenderer(listView, contentView, listView::drawChild);
         listView.addEdgeEffectListener(() -> listView.postOnAnimation(this::blur3_InvalidateBlur));
         listView.setSections();
-        if (!actionBar.getOccupyStatusBar()) {
-            listView.setPadding(0, needActionBarPadding() ? ActionBar.getCurrentActionBarHeight() : AndroidUtilities.dp(12), 0, 0);
-        }
+        listView.setPadding(0, needActionBarPadding() ? ActionBar.getCurrentActionBarHeight() : AndroidUtilities.dp(12), 0, 0);
         contentView.addView(listView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.FILL));
 
         actionBarBackground = new View(context) {
@@ -193,7 +192,8 @@ public abstract class BaseNekoSettingsActivity extends BaseFragment {
 
             @Override
             protected void onDraw(@NonNull Canvas canvas) {
-                int top = actionBar.getHeight();
+                var lp = (FrameLayout.LayoutParams) actionBar.getLayoutParams();
+                var top = lp.topMargin + actionBar.getHeight();
                 AndroidUtilities.rectTmp2.set(0, 0, getMeasuredWidth(), top);
                 blurScrimPaint.setColor(Theme.getColor(Theme.key_actionBarDefault, resourceProvider));
                 contentView.drawBlurRect(canvas, 0, AndroidUtilities.rectTmp2, blurScrimPaint, true);
@@ -251,7 +251,7 @@ public abstract class BaseNekoSettingsActivity extends BaseFragment {
             var firstChild = listView.getChildAt(0);
             visible = needActionBarPadding() ? listView.canScrollVertically(-1) : (
                     listView.getChildAdapterPosition(firstChild) > 0 ||
-                            firstChild.getY() + firstChild.getHeight() < actionBar.getHeight()
+                    firstChild.getY() + firstChild.getHeight() < actionBar.getHeight()
             );
         } else {
             visible = false;
@@ -295,7 +295,7 @@ public abstract class BaseNekoSettingsActivity extends BaseFragment {
         actionBar.setBackgroundColor(Color.TRANSPARENT);
         actionBar.setAddToContainer(false);
         actionBar.setUseContainerForTitles();
-        actionBar.setOccupyStatusBar(!AndroidUtilities.isTablet());
+        actionBar.setOccupyStatusBar(false);
         actionBar.setTitle(getActionBarTitle());
         actionBar.setTitleColor(getThemedColor(Theme.key_windowBackgroundWhiteBlackText));
         actionBar.setItemsColor(getThemedColor(Theme.key_windowBackgroundWhiteBlackText), false);
@@ -401,6 +401,8 @@ public abstract class BaseNekoSettingsActivity extends BaseFragment {
     public void onInsets(int left, int top, int right, int bottom) {
         var topPadding = needActionBarPadding() ? ActionBar.getCurrentActionBarHeight() : AndroidUtilities.dp(12);
         listView.setPadding(0, top + topPadding, 0, bottom);
+        var lp = (FrameLayout.LayoutParams) actionBar.getLayoutParams();
+        lp.topMargin = top;
         super.onInsets(left, top, right, bottom);
     }
 

@@ -143,6 +143,7 @@ import org.telegram.messenger.pip.activity.IPipActivityListener;
 import org.telegram.messenger.utils.FrameMetricsOverlayView;
 import org.telegram.messenger.utils.LeakDetector;
 import org.telegram.messenger.utils.WindowVisibilityManager;
+import org.telegram.messenger.video.VideoAds;
 import org.telegram.messenger.voip.VideoCapturerDevice;
 import org.telegram.messenger.voip.VoIPGroupNotification;
 import org.telegram.messenger.voip.VoIPPendingCall;
@@ -742,7 +743,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
         AndroidUtilities.enableEdgeToEdge(this);
 
-        BackupAgent.requestBackup(this);
+        BackupAgent.requestBackup(ApplicationLoader.applicationContext);
 
 
         //RestrictedLanguagesSelectActivity.checkRestrictedLanguages(false);
@@ -6919,6 +6920,8 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback((OnBackInvokedCallback) onBackInvokedCallback);
             }
         }
+        Bulletin.removeDelegate(frameLayout);
+        VideoAds.dropCache();
         clearFragments();
         super.onDestroy();
         onFinish();

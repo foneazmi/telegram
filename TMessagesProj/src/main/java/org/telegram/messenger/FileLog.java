@@ -423,7 +423,6 @@ public class FileLog {
             return;
         }
         if (BuildVars.DEBUG_VERSION && needSent(e) && logToAppCenter) {
-            AndroidUtilities.appCenterLog(e);
         }
         if (BuildVars.DEBUG_VERSION && e.getMessage() != null && e.getMessage().contains("disk image is malformed") && !databaseIsMalformed) {
             FileLog.d("copy malformed files");
@@ -510,7 +509,6 @@ public class FileLog {
             getInstance().dumpMemory(false);
         }
         if (logToAppCenter && BuildVars.DEBUG_VERSION && needSent(e)) {
-            AndroidUtilities.appCenterLog(e);
         }
         ensureInitied();
         e.printStackTrace();

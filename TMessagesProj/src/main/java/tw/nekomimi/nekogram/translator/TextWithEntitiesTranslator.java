@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.helpers.DeepLTokenHelper;
 import tw.nekomimi.nekogram.translator.html.HTMLKeeper;
 
 public class TextWithEntitiesTranslator implements Translator.ITranslator {
@@ -28,9 +27,7 @@ public class TextWithEntitiesTranslator implements Translator.ITranslator {
 
     @Override
     public Translator.TranslationResult translate(TLRPC.TL_textWithEntities query, String fl, String tl) throws Exception {
-        if (translator instanceof DeepLTranslator) {
-            DeepLTokenHelper.configureAccessToken();
-        }
+
         if (NekoConfig.keepFormatting) {
             var html = HTMLKeeper.entitiesToHtml(query.text, query.entities, false);
             var htmlQuery = new TLRPC.TL_textWithEntities();

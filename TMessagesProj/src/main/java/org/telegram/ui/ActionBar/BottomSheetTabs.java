@@ -66,7 +66,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import tw.nekomimi.nekogram.helpers.WebAppHelper;
+import com.khan.telegram.helpers.WebAppHelper;
 
 public class BottomSheetTabs extends FrameLayout {
 

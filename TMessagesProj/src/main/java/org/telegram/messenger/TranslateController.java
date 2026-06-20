@@ -52,9 +52,9 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.helpers.MessageHelper;
-import tw.nekomimi.nekogram.translator.Translator;
+import com.khan.telegram.NekoConfig;
+import com.khan.telegram.helpers.MessageHelper;
+import com.khan.telegram.translator.Translator;
 
 public class TranslateController extends BaseController {
 

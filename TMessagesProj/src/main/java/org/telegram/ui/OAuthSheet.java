@@ -30,7 +30,7 @@ import androidx.annotation.Nullable;
 import org.telegram.PhoneFormat.PhoneFormat;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
-import tw.nekomimi.nekogram.helpers.PasscodeHelper;
+import com.khan.telegram.helpers.PasscodeHelper;
 import org.telegram.messenger.Emoji;
 import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.ImageLocation;

@@ -53,8 +53,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
-import tw.nekomimi.nekogram.helpers.MessageHelper;
-import tw.nekomimi.nekogram.helpers.WhisperHelper;
+import com.khan.telegram.helpers.MessageHelper;
+import com.khan.telegram.helpers.WhisperHelper;
 
 public class TranscribeButton {
 

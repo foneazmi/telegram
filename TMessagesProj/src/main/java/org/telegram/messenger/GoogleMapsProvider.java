@@ -35,8 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.location.NekoLocationSource;
+import com.khan.telegram.NekoConfig;
+import com.khan.telegram.location.NekoLocationSource;
 
 public class GoogleMapsProvider implements IMapsProvider {
 

@@ -41,8 +41,8 @@ import org.telegram.messenger.Utilities;
 import org.telegram.ui.Components.VideoPlayer;
 import org.telegram.ui.LoginActivity;
 
-import tw.nekomimi.nekogram.ErrorDatabase;
-import tw.nekomimi.nekogram.NekoConfig;
+import com.khan.telegram.ErrorDatabase;
+import com.khan.telegram.NekoConfig;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

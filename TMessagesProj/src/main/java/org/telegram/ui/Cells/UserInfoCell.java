@@ -56,7 +56,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
-import tw.nekomimi.nekogram.helpers.RegDateHelper;
+import com.khan.telegram.helpers.RegDateHelper;
 
 public class UserInfoCell extends View implements NotificationCenter.NotificationCenterDelegate {
 

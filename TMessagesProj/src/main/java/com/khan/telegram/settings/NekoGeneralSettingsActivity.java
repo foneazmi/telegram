@@ -1,0 +1,253 @@
+package com.khan.telegram.settings;
+
+import android.text.TextUtils;
+import android.view.View;
+
+import androidx.core.text.HtmlCompat;
+
+import org.telegram.messenger.LocaleController;
+import org.telegram.messenger.R;
+import org.telegram.messenger.UserConfig;
+import org.telegram.tgnet.ConnectionsManager;
+import org.telegram.ui.Cells.TextCheckCell;
+import org.telegram.ui.Components.UItem;
+import org.telegram.ui.Components.UniversalAdapter;
+
+import java.util.ArrayList;
+import java.util.Locale;
+
+import com.khan.telegram.NekoConfig;
+import com.khan.telegram.helpers.PopupHelper;
+import com.khan.telegram.translator.Translator;
+
+public class NekoGeneralSettingsActivity extends BaseNekoSettingsActivity {
+
+    private final int ipv6Row = rowId++;
+
+    private final int showOriginalRow = rowId++;
+    private final int translationProviderRow = rowId++;
+    private final int translationTargetRow = rowId++;
+    private final int doNotTranslateRow = rowId++;
+    private final int autoTranslateRow = rowId++;
+
+    private final int accentAsNotificationColorRow = rowId++;
+    private final int silenceNonContactsRow = rowId++;
+
+    private final int nameOrderRow = rowId++;
+    private final int idTypeRow = rowId++;
+
+    private final int disabledInstantCameraRow = rowId++;
+    private final int askBeforeCallRow = rowId++;
+    private final int openArchiveOnPullRow = rowId++;
+
+    private CharSequence getTranslationProvider() {
+        var providers = Translator.getProviders();
+        var names = providers.first;
+        var types = providers.second;
+        if (names == null || types == null) {
+            return "";
+        }
+        int index = types.indexOf(NekoConfig.translationProvider);
+        if (index < 0) {
+            return "";
+        } else {
+            return names.get(index);
+        }
+    }
+
+    private CharSequence getTranslationTarget() {
+        var language = NekoConfig.translationTarget;
+        CharSequence value;
+        if (language.equals("app")) {
+            value = LocaleController.getString(R.string.TranslationTargetApp);
+        } else {
+            Locale locale = Locale.forLanguageTag(language);
+            if (!TextUtils.isEmpty(locale.getScript())) {
+                value = HtmlCompat.fromHtml(locale.getDisplayScript(), HtmlCompat.FROM_HTML_MODE_LEGACY);
+            } else {
+                value = locale.getDisplayName();
+            }
+        }
+        return value;
+    }
+
+    private CharSequence getRestrictedLanguages() {
+        var langCodes = Translator.getRestrictedLanguages();
+        CharSequence value;
+        if (langCodes.size() == 1) {
+            Locale locale = Locale.forLanguageTag(langCodes.get(0));
+            if (!TextUtils.isEmpty(locale.getScript())) {
+                value = HtmlCompat.fromHtml(locale.getDisplayScript(), HtmlCompat.FROM_HTML_MODE_LEGACY);
+            } else {
+                value = locale.getDisplayName();
+            }
+        } else {
+            value = LocaleController.formatPluralString("Languages", langCodes.size());
+        }
+        return value;
+    }
+
+    @Override
+    protected void fillItems(ArrayList<UItem> items, UniversalAdapter adapter) {
+        items.add(UItem.asHeader(LocaleController.getString(R.string.Connection)));
+        items.add(UItem.asCheck(ipv6Row, LocaleController.getString(R.string.PreferIPv6)).slug("ipv6").setChecked(NekoConfig.preferIPv6));
+        items.add(UItem.asShadow(null));
+
+        items.add(UItem.asHeader(LocaleController.getString(R.string.Translator)));
+        items.add(UItem.asCheck(showOriginalRow, LocaleController.getString(R.string.TranslatorShowOriginal)).slug("showOriginalRow").setChecked(NekoConfig.showOriginal));
+        items.add(TextSettingsCellFactory.of(translationProviderRow, LocaleController.getString(R.string.TranslationProviderShort), getTranslationProvider()).slug("translationProvider"));
+        items.add(TextSettingsCellFactory.of(translationTargetRow, LocaleController.getString(R.string.TranslationTarget), getTranslationTarget()).slug("translationTarget"));
+        items.add(TextSettingsCellFactory.of(doNotTranslateRow, LocaleController.getString(R.string.DoNotTranslate), getRestrictedLanguages()).slug("doNotTranslate"));
+        items.add(UItem.asCheck(autoTranslateRow, LocaleController.getString(R.string.AutoTranslate), LocaleController.getString(R.string.AutoTranslateAbout)).slug("autoTranslate").setChecked(NekoConfig.autoTranslate));
+        items.add(UItem.asShadow(LocaleController.getString(R.string.TranslateMessagesInfo1)));
+
+        items.add(UItem.asHeader(LocaleController.getString(R.string.Notifications)));
+        items.add(UItem.asCheck(accentAsNotificationColorRow, LocaleController.getString(R.string.AccentAsNotificationColor)).slug("accentAsNotificationColor").setChecked(NekoConfig.accentAsNotificationColor));
+        items.add(UItem.asCheck(silenceNonContactsRow, LocaleController.getString(R.string.SilenceNonContacts)).slug("silenceNonContacts").setChecked(NekoConfig.silenceNonContacts));
+        items.add(UItem.asShadow(LocaleController.getString(R.string.SilenceNonContactsAbout)));
+
+        items.add(UItem.asHeader(LocaleController.getString(R.string.UserColorTabProfile)));
+        items.add(TextSettingsCellFactory.of(nameOrderRow, LocaleController.getString(R.string.NameOrder), switch (NekoConfig.nameOrder) {
+            case 2 -> LocaleController.getString(R.string.LastFirst);
+            default -> LocaleController.getString(R.string.FirstLast);
+        }).slug("nameOrder"));
+        items.add(TextSettingsCellFactory.of(idTypeRow, LocaleController.getString(R.string.IdType), switch (NekoConfig.idType) {
+            case NekoConfig.ID_TYPE_HIDDEN -> LocaleController.getString(R.string.IdTypeHidden);
+            case NekoConfig.ID_TYPE_BOTAPI -> LocaleController.getString(R.string.IdTypeBOTAPI);
+            default -> LocaleController.getString(R.string.IdTypeAPI);
+        }).slug("idType"));
+        items.add(UItem.asShadow(LocaleController.getString(R.string.IdTypeAbout)));
+
+        items.add(UItem.asHeader(LocaleController.getString(R.string.General)));
+        items.add(UItem.asCheck(disabledInstantCameraRow, LocaleController.getString(R.string.DisableInstantCamera)).slug("disabledInstantCamera").setChecked(NekoConfig.disableInstantCamera));
+        items.add(UItem.asCheck(askBeforeCallRow, LocaleController.getString(R.string.AskBeforeCalling)).slug("askBeforeCall").setChecked(NekoConfig.askBeforeCall));
+        items.add(UItem.asCheck(openArchiveOnPullRow, LocaleController.getString(R.string.OpenArchiveOnPull)).slug("openArchiveOnPull").setChecked(NekoConfig.openArchiveOnPull));
+        items.add(UItem.asShadow(null));
+    }
+
+    @Override
+    protected void onItemClick(UItem item, View view, int position, float x, float y) {
+        var id = item.id;
+        if (id == ipv6Row) {
+            NekoConfig.toggleIPv6();
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(NekoConfig.preferIPv6);
+            }
+            for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                if (UserConfig.getInstance(a).isClientActivated()) {
+                    ConnectionsManager.getInstance(a).checkConnection();
+                }
+            }
+        } else if (id == disabledInstantCameraRow) {
+            NekoConfig.toggleDisabledInstantCamera();
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(NekoConfig.disableInstantCamera);
+            }
+        } else if (id == nameOrderRow) {
+            ArrayList<String> arrayList = new ArrayList<>();
+            ArrayList<Integer> types = new ArrayList<>();
+            arrayList.add(LocaleController.getString(R.string.FirstLast));
+            types.add(1);
+            arrayList.add(LocaleController.getString(R.string.LastFirst));
+            types.add(2);
+            PopupHelper.show(arrayList, LocaleController.getString(R.string.NameOrder), types.indexOf(NekoConfig.nameOrder), getParentActivity(), view, i -> {
+                NekoConfig.setNameOrder(types.get(i));
+                item.textValue = arrayList.get(i);
+                listView.adapter.notifyItemChanged(position, PARTIAL);
+                parentLayout.rebuildAllFragmentViews(false, false);
+            }, resourcesProvider);
+        } else if (id == translationProviderRow) {
+            Translator.showTranslationProviderSelector(getParentActivity(), view, param -> {
+                item.textValue = getTranslationProvider();
+                if (param) {
+                    listView.adapter.notifyItemChanged(position, PARTIAL);
+                } else {
+                    listView.adapter.notifyItemChanged(position, PARTIAL);
+                    notifyItemChanged(translationTargetRow, PARTIAL);
+                }
+            }, resourcesProvider);
+        } else if (id == translationTargetRow) {
+            Translator.showTranslationTargetSelector(this, view, () -> {
+                item.textValue = getTranslationTarget();
+                listView.adapter.notifyItemChanged(position, PARTIAL);
+                if (Translator.getRestrictedLanguages().size() == 1) {
+                    notifyItemChanged(doNotTranslateRow, PARTIAL);
+                }
+            }, resourcesProvider);
+        } else if (id == openArchiveOnPullRow) {
+            NekoConfig.toggleOpenArchiveOnPull();
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(NekoConfig.openArchiveOnPull);
+            }
+        } else if (id == askBeforeCallRow) {
+            NekoConfig.toggleAskBeforeCall();
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(NekoConfig.askBeforeCall);
+            }
+        } else if (id == idTypeRow) {
+            ArrayList<String> arrayList = new ArrayList<>();
+            ArrayList<Integer> types = new ArrayList<>();
+            arrayList.add(LocaleController.getString(R.string.IdTypeHidden));
+            types.add(NekoConfig.ID_TYPE_HIDDEN);
+            arrayList.add(LocaleController.getString(R.string.IdTypeAPI));
+            types.add(NekoConfig.ID_TYPE_API);
+            arrayList.add(LocaleController.getString(R.string.IdTypeBOTAPI));
+            types.add(NekoConfig.ID_TYPE_BOTAPI);
+            PopupHelper.show(arrayList, LocaleController.getString(R.string.IdType), types.indexOf(NekoConfig.idType), getParentActivity(), view, i -> {
+                NekoConfig.setIdType(types.get(i));
+                item.textValue = arrayList.get(i);
+                listView.adapter.notifyItemChanged(position, PARTIAL);
+                parentLayout.rebuildAllFragmentViews(false, false);
+            }, resourcesProvider);
+        } else if (id == accentAsNotificationColorRow) {
+            NekoConfig.toggleAccentAsNotificationColor();
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(NekoConfig.accentAsNotificationColor);
+            }
+        } else if (id == silenceNonContactsRow) {
+            NekoConfig.toggleSilenceNonContacts();
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(NekoConfig.silenceNonContacts);
+            }
+        } else if (id == doNotTranslateRow) {
+            presentFragment(new NekoLanguagesSelectActivity(NekoLanguagesSelectActivity.TYPE_RESTRICTED));
+        } else if (id == autoTranslateRow) {
+            NekoConfig.toggleAutoTranslate();
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(NekoConfig.autoTranslate);
+            }
+        } else if (id == showOriginalRow) {
+            NekoConfig.toggleShowOriginal();
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(NekoConfig.showOriginal);
+            }
+        }
+    }
+
+    @Override
+    protected String getActionBarTitle() {
+        return LocaleController.getString(R.string.General);
+    }
+
+    @Override
+    protected String getKey() {
+        return "g";
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (listView != null) {
+            var restrictedLanguageItem = listView.findItemByItemId(doNotTranslateRow);
+            if (restrictedLanguageItem != null) {
+                restrictedLanguageItem.textValue = getRestrictedLanguages();
+                notifyItemChanged(doNotTranslateRow, PARTIAL);
+            }
+            var translationTargetItem = listView.findItemByItemId(translationTargetRow);
+            if (translationTargetItem != null) {
+                translationTargetItem.textValue = getTranslationTarget();
+                notifyItemChanged(translationTargetRow, PARTIAL);
+            }
+        }
+    }
+}

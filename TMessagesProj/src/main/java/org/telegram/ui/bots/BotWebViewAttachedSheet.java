@@ -99,7 +99,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 import java.util.Locale;
 
-import tw.nekomimi.nekogram.helpers.WebAppHelper;
+import com.khan.telegram.helpers.WebAppHelper;
 
 public class BotWebViewAttachedSheet implements NotificationCenter.NotificationCenterDelegate, BaseFragment.AttachedSheet, BottomSheetTabsOverlay.Sheet {
     public final static int

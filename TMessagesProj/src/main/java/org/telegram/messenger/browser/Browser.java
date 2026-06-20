@@ -55,8 +55,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.helpers.WebpageHelper;
+import com.khan.telegram.NekoConfig;
+import com.khan.telegram.helpers.WebpageHelper;
 
 public class Browser {
 

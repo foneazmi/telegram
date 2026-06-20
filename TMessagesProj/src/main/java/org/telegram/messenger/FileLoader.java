@@ -30,7 +30,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import tw.nekomimi.nekogram.NekoConfig;
+import com.khan.telegram.NekoConfig;
 
 public class FileLoader extends BaseController {
 

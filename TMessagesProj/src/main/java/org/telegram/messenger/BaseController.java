@@ -3,9 +3,9 @@ package org.telegram.messenger;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.ui.Components.Paint.PersistColorPalette;
 
-import tw.nekomimi.nekogram.helpers.InlineBotHelper;
-import tw.nekomimi.nekogram.helpers.MessageHelper;
-import tw.nekomimi.nekogram.helpers.UserHelper;
+import com.khan.telegram.helpers.InlineBotHelper;
+import com.khan.telegram.helpers.MessageHelper;
+import com.khan.telegram.helpers.UserHelper;
 
 public class BaseController {
 

@@ -239,11 +239,11 @@ import org.telegram.ui.Stories.StoryViewer;
 import org.telegram.ui.Stories.recorder.CaptionContainerView;
 import org.telegram.ui.Stories.recorder.DominantColors;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.accessibility.AccConfig;
-import tw.nekomimi.nekogram.helpers.MessageFilterHelper;
-import tw.nekomimi.nekogram.helpers.MessageHelper;
-import tw.nekomimi.nekogram.helpers.WhisperHelper;
+import com.khan.telegram.NekoConfig;
+import com.khan.telegram.accessibility.AccConfig;
+import com.khan.telegram.helpers.MessageFilterHelper;
+import com.khan.telegram.helpers.MessageHelper;
+import com.khan.telegram.helpers.WhisperHelper;
 
 import java.io.File;
 import java.util.ArrayList;

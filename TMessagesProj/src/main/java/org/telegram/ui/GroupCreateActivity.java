@@ -94,7 +94,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 
-import tw.nekomimi.nekogram.NekoConfig;
+import com.khan.telegram.NekoConfig;
 
 import me.vkryl.android.animator.BoolAnimator;
 import me.vkryl.android.animator.FactorAnimator;

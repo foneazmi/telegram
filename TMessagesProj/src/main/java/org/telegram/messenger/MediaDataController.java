@@ -109,9 +109,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import tw.nekomimi.nekogram.NekoConfig;
-import tw.nekomimi.nekogram.helpers.EntitiesHelper;
-import tw.nekomimi.nekogram.helpers.MessageFilterHelper;
+import com.khan.telegram.NekoConfig;
+import com.khan.telegram.helpers.EntitiesHelper;
+import com.khan.telegram.helpers.MessageFilterHelper;
 
 @SuppressWarnings("unchecked")
 public class MediaDataController extends BaseController {

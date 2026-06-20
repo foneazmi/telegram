@@ -137,8 +137,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import tw.nekomimi.nekogram.forward.ForwardContext;
-import tw.nekomimi.nekogram.forward.SendItemOptions;
+import com.khan.telegram.forward.ForwardContext;
+import com.khan.telegram.forward.SendItemOptions;
 
 public class ShareAlert extends BottomSheet implements NotificationCenter.NotificationCenterDelegate {
 

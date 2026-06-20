@@ -19,7 +19,7 @@ public class CloudSettingsHelper {
         if (context == null) return;
         var builder = new org.telegram.ui.ActionBar.AlertDialog.Builder(context, parentFragment.getResourceProvider());
         builder.setTitle(LocaleController.getString(R.string.CloudConfig));
-        builder.setMessage(LocaleController.getString(R.string.CloudConfigUnavailable));
+        builder.setMessage("Cloud settings are not available in this version of Nekogram. Please use the official Telegram app for cloud settings.");
         builder.setPositiveButton(LocaleController.getString(R.string.OK), null);
         parentFragment.showDialog(builder.create());
     }

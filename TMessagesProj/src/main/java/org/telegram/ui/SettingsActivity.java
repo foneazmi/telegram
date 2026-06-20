@@ -720,57 +720,57 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
 
         items.add(UItem.asShadow(null));
 
-        if (!getMessagesController().premiumFeaturesBlocked()) {
-            items.add(SettingCell.Factory.of(11, 0xFFB659FF, 0xFF617CFF, R.drawable.settings_premium, getString(R.string.TelegramPremium)));
-        }
-        if (getMessagesController().starsPurchaseAvailable()) {
-            StarsController c = StarsController.getInstance(currentAccount);
-            long balance = c.getBalance().amount;
-            items.add(SettingCell.Factory.of(12, 0xFFEFA612, 0xFFE77512, R.drawable.settings_stars, getString(R.string.TelegramStars), null, c.balanceAvailable() && balance > 0 ? StarsIntroActivity.formatStarsAmount(c.getBalance(), 0.85f, ' ') : ""));
-        }
-        StarsController.getInstance(currentAccount, true).getBalance();
-        if (ApplicationLoader.isBetaBuild() || ApplicationLoader.isStandaloneBuild() || ApplicationLoader.isHuaweiStoreBuild() || (StarsController.getInstance(currentAccount, true).balanceAvailable() && (StarsController.getInstance(currentAccount, true).hasTransactions() || StarsController.getInstance(currentAccount, true).getBalance().positive()))) {
-            StarsController c = StarsController.getTonInstance(currentAccount);
-            long balance = c.getBalance().amount;
-            items.add(SettingCell.Factory.of(13, 0xFF1BA4ED, 0xFF1488E1, R.drawable.settings_ton, getString(R.string.MyTON), null, c.balanceAvailable() && balance > 0 ? StarsIntroActivity.formatStarsAmount(c.getBalance(), 0.85f, ' ') : ""));
-        }
+        // if (!getMessagesController().premiumFeaturesBlocked()) {
+        //     items.add(SettingCell.Factory.of(11, 0xFFB659FF, 0xFF617CFF, R.drawable.settings_premium, getString(R.string.TelegramPremium)));
+        // }
+        // if (getMessagesController().starsPurchaseAvailable()) {
+        //     StarsController c = StarsController.getInstance(currentAccount);
+        //     long balance = c.getBalance().amount;
+        //     items.add(SettingCell.Factory.of(12, 0xFFEFA612, 0xFFE77512, R.drawable.settings_stars, getString(R.string.TelegramStars), null, c.balanceAvailable() && balance > 0 ? StarsIntroActivity.formatStarsAmount(c.getBalance(), 0.85f, ' ') : ""));
+        // }
+        // StarsController.getInstance(currentAccount, true).getBalance();
+        // if (ApplicationLoader.isBetaBuild() || ApplicationLoader.isStandaloneBuild() || ApplicationLoader.isHuaweiStoreBuild() || (StarsController.getInstance(currentAccount, true).balanceAvailable() && (StarsController.getInstance(currentAccount, true).hasTransactions() || StarsController.getInstance(currentAccount, true).getBalance().positive()))) {
+        //     StarsController c = StarsController.getTonInstance(currentAccount);
+        //     long balance = c.getBalance().amount;
+        //     items.add(SettingCell.Factory.of(13, 0xFF1BA4ED, 0xFF1488E1, R.drawable.settings_ton, getString(R.string.MyTON), null, c.balanceAvailable() && balance > 0 ? StarsIntroActivity.formatStarsAmount(c.getBalance(), 0.85f, ' ') : ""));
+        // }
 
-        TLRPC.TL_attachMenuBots menuBots = MediaDataController.getInstance(UserConfig.selectedAccount).getAttachMenuBots();
-        if (menuBots != null && menuBots.bots != null && !menuBots.bots.isEmpty()) {
-            for (TLRPC.TL_attachMenuBot attachMenuBot : menuBots.bots) {
-                final long WALLET_BOT_ID = 1985737506L;
-                if (attachMenuBot.show_in_side_menu && attachMenuBot.bot_id == WALLET_BOT_ID) {
-                    UItem item = SettingCell.Factory.ofBot(attachMenuBot, 0xFF1BA4ED, 0xFF1488E1, R.drawable.settings_wallet);
-                    item.object = attachMenuBot;
-                    items.add(item);
-                }
-            }
-        }
+        // TLRPC.TL_attachMenuBots menuBots = MediaDataController.getInstance(UserConfig.selectedAccount).getAttachMenuBots();
+        // if (menuBots != null && menuBots.bots != null && !menuBots.bots.isEmpty()) {
+        //     for (TLRPC.TL_attachMenuBot attachMenuBot : menuBots.bots) {
+        //         final long WALLET_BOT_ID = 1985737506L;
+        //         if (attachMenuBot.show_in_side_menu && attachMenuBot.bot_id == WALLET_BOT_ID) {
+        //             UItem item = SettingCell.Factory.ofBot(attachMenuBot, 0xFF1BA4ED, 0xFF1488E1, R.drawable.settings_wallet);
+        //             item.object = attachMenuBot;
+        //             items.add(item);
+        //         }
+        //     }
+        // }
 
-        if (!getMessagesController().premiumFeaturesBlocked()) {
-            items.add(SettingCell.Factory.of(15, 0xFFF45255, 0xFFDF3955, R.drawable.settings_business, getString(R.string.TelegramBusiness)));
-        }
-        if (!getMessagesController().premiumPurchaseBlocked()) {
-            items.add(SettingCell.Factory.of(16, 0xFFF38B31, 0xFFE26314, R.drawable.settings_gift, getString(R.string.SendAGift)));
-        }
-        if (items.get(items.size() - 1).viewType != UniversalAdapter.VIEW_TYPE_SHADOW)
-            items.add(UItem.asShadow(null));
+        // if (!getMessagesController().premiumFeaturesBlocked()) {
+        //     items.add(SettingCell.Factory.of(15, 0xFFF45255, 0xFFDF3955, R.drawable.settings_business, getString(R.string.TelegramBusiness)));
+        // }
+        // if (!getMessagesController().premiumPurchaseBlocked()) {
+        //     items.add(SettingCell.Factory.of(16, 0xFFF38B31, 0xFFE26314, R.drawable.settings_gift, getString(R.string.SendAGift)));
+        // }
+        // if (items.get(items.size() - 1).viewType != UniversalAdapter.VIEW_TYPE_SHADOW)
+            // items.add(UItem.asShadow(null));
 
-        items.add(UItem.asHeader(getString(R.string.SettingsHelp)));
-        items.add(SettingCell.Factory.of(17, IconBackgroundColors.ORANGE.top, IconBackgroundColors.ORANGE.bottom, R.drawable.settings_ask, getString(R.string.AskAQuestion)));
-        items.add(SettingCell.Factory.of(18, IconBackgroundColors.BLUE_LIGHT.top, IconBackgroundColors.BLUE_LIGHT.bottom, R.drawable.settings_faq, getString(R.string.TelegramFAQ)));
-        items.add(SettingCell.Factory.of(23, IconBackgroundColors.PURPLE.top, IconBackgroundColors.PURPLE.bottom, R.drawable.settings_features, getString(R.string.TelegramFeatures)));
-        items.add(SettingCell.Factory.of(19, IconBackgroundColors.GREEN.top, IconBackgroundColors.GREEN.bottom, R.drawable.settings_policy, getString(R.string.PrivacyPolicy)));
+        // items.add(UItem.asHeader(getString(R.string.SettingsHelp)));
+        // items.add(SettingCell.Factory.of(17, IconBackgroundColors.ORANGE.top, IconBackgroundColors.ORANGE.bottom, R.drawable.settings_ask, getString(R.string.AskAQuestion)));
+        // items.add(SettingCell.Factory.of(18, IconBackgroundColors.BLUE_LIGHT.top, IconBackgroundColors.BLUE_LIGHT.bottom, R.drawable.settings_faq, getString(R.string.TelegramFAQ)));
+        // items.add(SettingCell.Factory.of(23, IconBackgroundColors.PURPLE.top, IconBackgroundColors.PURPLE.bottom, R.drawable.settings_features, getString(R.string.TelegramFeatures)));
+        // items.add(SettingCell.Factory.of(19, IconBackgroundColors.GREEN.top, IconBackgroundColors.GREEN.bottom, R.drawable.settings_policy, getString(R.string.PrivacyPolicy)));
 
-        if (BuildVars.LOGS_ENABLED || BuildVars.DEBUG_PRIVATE_VERSION) {
-            items.add(UItem.asShadow(null));
-            items.add(UItem.asHeader(getString(R.string.SettingsDebug)));
-            items.add(SettingCell.Factory.of(20, 0xFF55CA47, 0xFF27B434, 0, getString(R.string.DebugSendLogs)));
-            items.add(SettingCell.Factory.of(21, 0xFF55CA47, 0xFF27B434, 0, getString(R.string.DebugSendLastLogs)));
-            items.add(SettingCell.Factory.of(22, 0xFFF45255, 0xFFDF3955, 0, getString(R.string.DebugClearLogs)));
-        }
+        // if (BuildVars.LOGS_ENABLED || BuildVars.DEBUG_PRIVATE_VERSION) {
+        //     items.add(UItem.asShadow(null));
+        //     items.add(UItem.asHeader(getString(R.string.SettingsDebug)));
+        //     items.add(SettingCell.Factory.of(20, 0xFF55CA47, 0xFF27B434, 0, getString(R.string.DebugSendLogs)));
+        //     items.add(SettingCell.Factory.of(21, 0xFF55CA47, 0xFF27B434, 0, getString(R.string.DebugSendLastLogs)));
+        //     items.add(SettingCell.Factory.of(22, 0xFFF45255, 0xFFDF3955, 0, getString(R.string.DebugClearLogs)));
+        // }
 
-        items.add(UItem.asCustomShadow(versionView));
+        // items.add(UItem.asCustomShadow(versionView));
     }
 
     private void presentSettingFragment(BaseFragment fragment) {

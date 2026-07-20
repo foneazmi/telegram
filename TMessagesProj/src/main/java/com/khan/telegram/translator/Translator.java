@@ -23,9 +23,8 @@ import org.telegram.messenger.R;
 import org.telegram.messenger.TranslateController;
 import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.Utilities;
+import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
-import org.telegram.tgnet.json.TLJsonBuilder;
-import org.telegram.tgnet.json.TLJsonParser;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
@@ -62,6 +61,11 @@ public class Translator {
 
     public static void showTranslateDialog(Context context, String query, ArrayList<TLRPC.MessageEntity> entities, boolean noforwards, BaseFragment fragment, Utilities.CallbackReturn<URLSpan, Boolean> onLinkPress, String sourceLanguage, View anchorView, Theme.ResourcesProvider resourcesProvider) {
         TranslateAlert2.showAlert(context, fragment, UserConfig.selectedAccount, sourceLanguage, NekoConfig.translationTarget, query, entities, noforwards, onLinkPress, null, resourcesProvider);
+    }
+
+    public static void handleTranslationError(Context context, String t, final Runnable onRetry, Theme.ResourcesProvider resourcesProvider) {
+        var exception = "QUOTA_EXCEEDED".equals(t) ? new Http429Exception() : new RuntimeException(t);
+        handleTranslationError(context, exception, onRetry, resourcesProvider);
     }
 
     public static void handleTranslationError(Context context, final Throwable t, final Runnable onRetry, Theme.ResourcesProvider resourcesProvider) {
@@ -122,10 +126,10 @@ public class Translator {
         var currentTargetLanguage = stripLanguageCode(getCurrentTargetLanguage());
         var languages = restrictedLanguages.stream().filter(s -> !s.equals(currentTargetLanguage)).collect(Collectors.toSet());
         if (!restrictedLanguages.isEmpty() && languages.isEmpty()) {
-            NekoConfig.saveRestrictedLanguages(null);
+            NekoConfig.setRestrictedLanguages(null);
             return;
         }
-        NekoConfig.saveRestrictedLanguages(new HashSet<>(restrictedLanguages));
+        NekoConfig.setRestrictedLanguages(new HashSet<>(restrictedLanguages));
     }
 
     public static Pair<ArrayList<String>, ArrayList<String>> getProviders() {
@@ -254,15 +258,11 @@ public class Translator {
         return textWithEntities;
     }
 
-    private static TLRPC.MessageEntity copyEntity(TLRPC.MessageEntity entity) {
-        return TLRPC.MessageEntity.TLJsonDeserialize(new TLJsonParser(TLJsonBuilder.serialize(entity)));
-    }
-
     public static ArrayList<TLRPC.MessageEntity> mergeEntities(ArrayList<TLRPC.MessageEntity> entities1, ArrayList<TLRPC.MessageEntity> entities2, int offset) {
         ArrayList<TLRPC.MessageEntity> result = new ArrayList<>(entities1);
         if (entities2 != null) {
             for (TLRPC.MessageEntity entity : entities2) {
-                var copy = copyEntity(entity);
+                var copy = TLObject.deepCopy(entity, TLRPC.MessageEntity::TLdeserialize);
                 if (copy == null) continue;
                 copy.offset += offset;
                 result.add(copy);

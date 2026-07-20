@@ -66,8 +66,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import com.khan.telegram.helpers.WebAppHelper;
-
 public class BottomSheetTabs extends FrameLayout {
 
     private final Paint backgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -1017,9 +1015,6 @@ public class BottomSheetTabs extends FrameLayout {
                 return title;
             }
             if (props == null) return "";
-            if (WebAppHelper.isInternalBot(props)) {
-                return WebAppHelper.getInternalBotName(props);
-            }
             TLRPC.User user = MessagesController.getInstance(props.currentAccount).getUser(props.botId);
             return UserObject.getUserName(user);
         }

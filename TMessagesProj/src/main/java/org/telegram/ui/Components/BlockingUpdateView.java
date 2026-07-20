@@ -30,7 +30,6 @@ import org.telegram.messenger.MessageObject;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
 import org.telegram.messenger.SharedConfig;
-import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.browser.Browser;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLRPC;
@@ -220,7 +219,7 @@ public class BlockingUpdateView extends FrameLayout implements NotificationCente
     }
 
     public boolean openApkInstall(Activity activity, TLRPC.Document document) {
-        return AndroidUtilities.openForView(document, false, activity);
+        return AndroidUtilities.openForView(document, true, activity);
     }
 
     private void showProgress(final boolean show) {
@@ -296,7 +295,7 @@ public class BlockingUpdateView extends FrameLayout implements NotificationCente
         NotificationCenter.getInstance(accountNum).addObserver(this, NotificationCenter.fileLoadFailed);
         NotificationCenter.getInstance(accountNum).addObserver(this, NotificationCenter.fileLoadProgressChanged);
         if (check) {
-            UpdateHelper.checkNewVersionAvailable((response, error) -> AndroidUtilities.runOnUIThread(() -> {
+            UpdateHelper.getInstance().checkNewVersionAvailable((response, error) -> AndroidUtilities.runOnUIThread(() -> {
                 if (response != null) {
                     if (!response.can_not_skip) {
                         setVisibility(GONE);

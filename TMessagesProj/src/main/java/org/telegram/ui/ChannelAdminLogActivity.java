@@ -177,7 +177,7 @@ import me.vkryl.core.reference.ReferenceList;
 
 import com.khan.telegram.MessageDetailsActivity;
 import com.khan.telegram.NekoConfig;
-import com.khan.telegram.helpers.WebAppHelper;
+import com.khan.telegram.tlv.TlViewer;
 
 public class ChannelAdminLogActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
 
@@ -2381,7 +2381,7 @@ public class ChannelAdminLogActivity extends BaseFragment implements Notificatio
     private boolean processSelectedOptionLongClick(int option) {
         switch (option) {
             case OPTION_DETAILS: {
-                WebAppHelper.openTLViewer(this, selectedObject.currentEvent);
+                TlViewer.openTlViewer(this, selectedObject.currentEvent);
                 return true;
             }
         }

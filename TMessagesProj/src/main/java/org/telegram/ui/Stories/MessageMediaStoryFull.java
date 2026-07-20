@@ -8,7 +8,7 @@ import org.telegram.tgnet.OutputSerializedData;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.tgnet.tl.TL_stories;
 
-import com.khan.telegram.helpers.WebAppHelper;
+import com.khan.telegram.tlv.TlViewer;
 
 public class MessageMediaStoryFull extends TLRPC.TL_messageMediaStory {
 
@@ -23,7 +23,7 @@ public class MessageMediaStoryFull extends TLRPC.TL_messageMediaStory {
     }
 
     public void serializeToStream(OutputSerializedData stream) {
-        if (stream instanceof WebAppHelper.CleanSerializedData) {
+        if (stream instanceof TlViewer.CleanSerializedData) {
             super.serializeToStream(stream);
             return;
         }

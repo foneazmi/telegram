@@ -41,8 +41,8 @@ import java.util.Locale;
 
 import com.khan.telegram.helpers.MessageHelper;
 import com.khan.telegram.helpers.UserHelper;
-import com.khan.telegram.helpers.WebAppHelper;
 import com.khan.telegram.settings.BaseNekoSettingsActivity;
+import com.khan.telegram.tlv.TlViewer;
 
 public class MessageDetailsActivity extends BaseNekoSettingsActivity implements NotificationCenter.NotificationCenterDelegate {
 
@@ -476,7 +476,7 @@ public class MessageDetailsActivity extends BaseNekoSettingsActivity implements 
 
             showDialog(dialog);
         } else if (id == exportRow) {
-            WebAppHelper.openTLViewer(this,
+            TlViewer.openTlViewer(this,
                     messageObject.currentEvent != null ? messageObject.currentEvent : messageObject.messageOwner);
         }
     }

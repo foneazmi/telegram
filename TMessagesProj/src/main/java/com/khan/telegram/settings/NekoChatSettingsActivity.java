@@ -17,7 +17,6 @@ import androidx.core.graphics.ColorUtils;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.LocaleController;
-import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
 import org.telegram.ui.ActionBar.AlertDialog;
@@ -44,7 +43,7 @@ import com.khan.telegram.helpers.PopupHelper;
 import com.khan.telegram.helpers.VoiceEnhancementsHelper;
 import com.khan.telegram.helpers.WhisperHelper;
 
-public class NekoChatSettingsActivity extends BaseNekoSettingsActivity implements NotificationCenter.NotificationCenterDelegate {
+public class NekoChatSettingsActivity extends BaseNekoSettingsActivity {
 
     private ActionBarMenuItem resetItem;
 
@@ -81,15 +80,6 @@ public class NekoChatSettingsActivity extends BaseNekoSettingsActivity implement
     private final int cameraInVideoMessagesRow = rowId++;
 
     private final int messageMenuRow = 100;
-
-    @Override
-    public boolean onFragmentCreate() {
-        super.onFragmentCreate();
-
-        NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.emojiLoaded);
-
-        return true;
-    }
 
     @Override
     public View createView(Context context) {
@@ -510,15 +500,6 @@ public class NekoChatSettingsActivity extends BaseNekoSettingsActivity implement
     @Override
     protected String getKey() {
         return "c";
-    }
-
-    @Override
-    public void didReceivedNotification(int id, int account, Object... args) {
-        if (id == NotificationCenter.emojiLoaded) {
-            if (listView != null) {
-                listView.invalidateViews();
-            }
-        }
     }
 
     private static class StickerSizeCellFactory extends UItem.UItemFactory<StickerSizeCell> {

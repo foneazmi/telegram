@@ -21,7 +21,7 @@ import com.khan.telegram.helpers.AnalyticsHelper;
 import com.khan.telegram.helpers.CloudSettingsHelper;
 import com.khan.telegram.helpers.LensHelper;
 import com.khan.telegram.translator.Translator;
-import com.khan.telegram.translator.TranslatorApps;
+// import com.khan.telegram.translator.TranslatorApps;
 
 public class NekoConfig {
     //TODO: refactor
@@ -249,7 +249,7 @@ public class NekoConfig {
             translationTarget = preferences.getString("translationTarget", "app");
             restrictedLanguages = preferences.getStringSet("restrictedLanguages", null);
 
-            TranslatorApps.loadTranslatorAppsAsync();
+            // TranslatorApps.loadTranslatorAppsAsync();
             LensHelper.checkLensSupportAsync();
             preferences.registerOnSharedPreferenceChangeListener(listener);
 

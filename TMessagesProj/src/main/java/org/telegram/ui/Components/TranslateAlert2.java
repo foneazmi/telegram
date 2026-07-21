@@ -1208,15 +1208,15 @@ public class TranslateAlert2 extends BottomSheet implements NotificationCenter.N
         public boolean dispatchTouchEvent(MotionEvent ev) {
             if (textSelectionHelper != null && textSelectionOverlay != null) {
                 if (ev.getAction() == MotionEvent.ACTION_DOWN || ev.getAction() == MotionEvent.ACTION_UP) {
-                    Log.d("TA2", "container dispatch act=" + ev.getAction() + " inSel=" + textSelectionHelper.isInSelectionMode());
+                    // Log.d("TA2", "container dispatch act=" + ev.getAction() + " inSel=" + textSelectionHelper.isInSelectionMode());
                 }
                 if (textSelectionHelper.isInSelectionMode() && textSelectionOverlay.onTouchEvent(ev)) {
-                    Log.d("TA2", "overlay consumed (handle)");
+                    // Log.d("TA2", "overlay consumed (handle)");
                     return true;
                 }
                 boolean tap = textSelectionOverlay.checkOnTap(ev);
                 if (ev.getAction() == MotionEvent.ACTION_UP) {
-                    Log.d("TA2", "checkOnTap=" + tap);
+                    // Log.d("TA2", "checkOnTap=" + tap);
                 }
                 if (tap) {
                     ev.setAction(MotionEvent.ACTION_CANCEL);

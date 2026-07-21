@@ -64,8 +64,8 @@ public class Translator {
     }
 
     public static void handleTranslationError(Context context, String t, final Runnable onRetry, Theme.ResourcesProvider resourcesProvider) {
-        var exception = "QUOTA_EXCEEDED".equals(t) ? new Http429Exception() : new RuntimeException(t);
-        handleTranslationError(context, exception, onRetry, resourcesProvider);
+        // var exception = "QUOTA_EXCEEDED".equals(t) ? new Http429Exception() : new RuntimeException(t);
+        // handleTranslationError(context, exception, onRetry, resourcesProvider);
     }
 
     public static void handleTranslationError(Context context, final Throwable t, final Runnable onRetry, Theme.ResourcesProvider resourcesProvider) {

@@ -22,6 +22,7 @@ import com.khan.telegram.settings.NekoEmojiSettingsActivity;
 import com.khan.telegram.settings.NekoExperimentalSettingsActivity;
 import com.khan.telegram.settings.NekoGeneralSettingsActivity;
 import com.khan.telegram.settings.NekoPasscodeSettingsActivity;
+import com.khan.telegram.settings.NekoSettingsActivity;
 
 public class SettingsHelper {
     
@@ -36,41 +37,48 @@ public class SettingsHelper {
             return;
         }
         BaseNekoSettingsActivity fragment;
-        var segment = segments.get(1);
-        if (PasscodeHelper.getSettingsKey().equals(segment)) {
-            fragment = new NekoPasscodeSettingsActivity();
+        if (segments.size() == 1) {
+            fragment = new NekoSettingsActivity();
         } else {
-            switch (segment.toLowerCase(Locale.US)) {
-                case "appearance":
-                case "a":
-                    fragment = new NekoAppearanceSettingsActivity();
-                    break;
-                case "chat":
-                case "chats":
-                case "c":
-                    fragment = new NekoChatSettingsActivity();
-                    break;
-                case "donate":
-                case "d":
-                    fragment = new NekoDonateActivity();
-                    break;
-                case "experimental":
-                case "e":
-                    fragment = new NekoExperimentalSettingsActivity();
-                    break;
-                case "emoji":
-                    fragment = new NekoEmojiSettingsActivity();
-                    break;
-                case "general":
-                case "g":
-                    fragment = new NekoGeneralSettingsActivity();
-                    break;
-                case "update":
-                    LaunchActivity.instance.checkAppUpdate(true, progress);
-                    return;
-                default:
-                    unknown.run();
-                    return;
+            var segment = segments.get(1);
+            if (PasscodeHelper.getSettingsKey().equals(segment)) {
+                fragment = new NekoPasscodeSettingsActivity();
+            } else {
+                switch (segment.toLowerCase(Locale.US)) {
+                    case "appearance":
+                    case "a":
+                        fragment = new NekoAppearanceSettingsActivity();
+                        break;
+                    case "chat":
+                    case "chats":
+                    case "c":
+                        fragment = new NekoChatSettingsActivity();
+                        break;
+                    case "donate":
+                    case "d":
+                        fragment = new NekoDonateActivity();
+                        break;
+                    case "experimental":
+                    case "e":
+                        fragment = new NekoExperimentalSettingsActivity();
+                        break;
+                    case "emoji":
+                        fragment = new NekoEmojiSettingsActivity();
+                        break;
+                    case "general":
+                    case "g":
+                        fragment = new NekoGeneralSettingsActivity();
+                        break;
+                    case "reportid":
+                        SettingsHelper.copyReportId();
+                        return;
+                    case "update":
+                        LaunchActivity.instance.checkAppUpdate(true, progress);
+                        return;
+                    default:
+                        unknown.run();
+                        return;
+                }
             }
         }
         callback.accept(fragment);
@@ -82,6 +90,11 @@ public class SettingsHelper {
             var rowFinal = row;
             AndroidUtilities.runOnUIThread(() -> fragment.scrollToRow(rowFinal, unknown));
         }
+    }
+
+    public static void copyReportId() {
+        AndroidUtilities.addToClipboard(AnalyticsHelper.userId);
+        BulletinFactory.global().createSimpleBulletin(R.raw.copy, LocaleController.getString(R.string.TextCopied), LocaleController.getString(R.string.CopyReportIdDescription)).show();
     }
 
 }

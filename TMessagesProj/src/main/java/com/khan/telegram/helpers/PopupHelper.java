@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -40,6 +41,45 @@ import com.khan.telegram.DatacenterPopupWrapper;
 import com.khan.telegram.tlv.TlViewer;
 
 public class PopupHelper {
+
+    public static void show(List<? extends CharSequence> entries, String title, int checkedIndex, Context context, View itemView, IntConsumer listener, Theme.ResourcesProvider resourcesProvider) {
+        if (itemView == null) {
+            var builder = new AlertDialog.Builder(context, resourcesProvider);
+            builder.setTitle(title);
+            var linearLayout = new LinearLayout(context);
+            linearLayout.setOrientation(LinearLayout.VERTICAL);
+            builder.setView(linearLayout);
+
+            for (int a = 0; a < entries.size(); a++) {
+                var cell = new RadioColorCell(context, resourcesProvider);
+                cell.setPadding(AndroidUtilities.dp(4), 0, AndroidUtilities.dp(4), 0);
+                cell.setTag(a);
+                cell.setTextAndValue(entries.get(a), checkedIndex == a);
+                cell.setBackground(Theme.createSelectorDrawable(Theme.getColor(Theme.key_listSelector, resourcesProvider), Theme.RIPPLE_MASK_ALL));
+                linearLayout.addView(cell);
+                cell.setOnClickListener(v -> {
+                    Integer which = (Integer) v.getTag();
+                    builder.getDismissRunnable().run();
+                    listener.accept(which);
+                });
+            }
+            builder.setNegativeButton(LocaleController.getString(R.string.Cancel), null);
+            builder.show();
+        } else if (itemView.getParent() instanceof ViewGroup container) {
+            var popup = ItemOptions.makeOptions(container, resourcesProvider, itemView);
+            var parent = itemView.getParent();
+            if (parent instanceof RecyclerListView listView) {
+                popup.setScrimViewBackground(listView.getClipBackground(itemView));
+            }
+            popup.setGravity(LocaleController.isRTL ? Gravity.LEFT : Gravity.RIGHT);
+            for (int i = 0; i < entries.size(); i++) {
+                var entry = entries.get(i);
+                var finalI = i;
+                popup.addChecked(checkedIndex == i, entry, () -> listener.accept(finalI));
+            }
+            popup.show();
+        }
+    }
 
     public static void show(List<? extends CharSequence> entries, String title, int checkedIndex, BaseFragment fragment, View itemView, IntConsumer listener) {
         if (itemView == null) {

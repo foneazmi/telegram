@@ -33850,7 +33850,7 @@ public class ChatActivity extends BaseFragment implements
                     getMessagesStorage().updateMessageCustomParams(messageObject.getDialogId(), messageObject.messageOwner);
                     getMessageHelper().resetMessageContent(dialog_id, messageObject, true);
                 } else if (err != null) {
-                    Translator.handleTranslationError(this, err.text, () -> translateMessage(messageObject, cell, sourceLanguage));
+                    Translator.handleTranslationError(this, err.text, () -> translateMessage(messageObject, cell, sourceLanguage), getResourceProvider());
                     getMessageHelper().resetMessageContent(dialog_id, messageObject, false, false);
                 }
             }));
@@ -33874,7 +33874,7 @@ public class ChatActivity extends BaseFragment implements
 
             @Override
             public void onError(Throwable t) {
-                Translator.handleTranslationError(ChatActivity.this, t, () -> translateMessage(messageObject, cell, sourceLanguage));
+                Translator.handleTranslationError(ChatActivity.this, t, () -> translateMessage(messageObject, cell, sourceLanguage), getResourceProvider());
                 getMessageHelper().resetMessageContent(dialog_id, messageObject, false, false);
             }
         });

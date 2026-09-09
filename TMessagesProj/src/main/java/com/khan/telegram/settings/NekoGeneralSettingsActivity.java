@@ -150,12 +150,12 @@ public class NekoGeneralSettingsActivity extends BaseNekoSettingsActivity {
             types.add(1);
             arrayList.add(LocaleController.getString(R.string.LastFirst));
             types.add(2);
-            PopupHelper.show(arrayList, LocaleController.getString(R.string.NameOrder), types.indexOf(NekoConfig.nameOrder), getParentActivity(), view, i -> {
+            PopupHelper.show(arrayList, LocaleController.getString(R.string.NameOrder), types.indexOf(NekoConfig.nameOrder), this, view, i -> {
                 NekoConfig.setNameOrder(types.get(i));
                 item.textValue = arrayList.get(i);
                 listView.adapter.notifyItemChanged(position, PARTIAL);
                 parentLayout.rebuildAllFragmentViews(false, false);
-            }, resourcesProvider);
+            });
         } else if (id == translationProviderRow) {
             Translator.showTranslationProviderSelector(getParentActivity(), view, param -> {
                 item.textValue = getTranslationProvider();
@@ -193,12 +193,12 @@ public class NekoGeneralSettingsActivity extends BaseNekoSettingsActivity {
             types.add(NekoConfig.ID_TYPE_API);
             arrayList.add(LocaleController.getString(R.string.IdTypeBOTAPI));
             types.add(NekoConfig.ID_TYPE_BOTAPI);
-            PopupHelper.show(arrayList, LocaleController.getString(R.string.IdType), types.indexOf(NekoConfig.idType), getParentActivity(), view, i -> {
+            PopupHelper.show(arrayList, LocaleController.getString(R.string.IdType), types.indexOf(NekoConfig.idType), this, view, i -> {
                 NekoConfig.setIdType(types.get(i));
                 item.textValue = arrayList.get(i);
                 listView.adapter.notifyItemChanged(position, PARTIAL);
                 parentLayout.rebuildAllFragmentViews(false, false);
-            }, resourcesProvider);
+            });
         } else if (id == accentAsNotificationColorRow) {
             NekoConfig.toggleAccentAsNotificationColor();
             if (view instanceof TextCheckCell) {
